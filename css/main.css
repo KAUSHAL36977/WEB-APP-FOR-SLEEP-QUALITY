@@ -1,11 +1,19 @@
 :root {
     /* Color Variables */
-    --primary-color: #4F46E5;
-    --primary-light: #818CF8;
+    --primary: #8a2be2;
+    --primary-light: #9d4edd;
     --primary-dark: #3730A3;
-    --secondary-color: #06B6D4;
+    --secondary: #4cc9f0;
     --secondary-light: #67E8F9;
     --secondary-dark: #0891B2;
+    --accent: #f72585;
+    --text: #2b2d42;
+    --text-light: #8d99ae;
+    --bg: #f8f9fa;
+    --card-bg: rgba(255, 255, 255, 0.85);
+    --card-border: rgba(255, 255, 255, 0.3);
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
     
     /* Neutral Colors */
     --background: #F8FAFC;
@@ -68,23 +76,31 @@ html {
 }
 
 body {
-    font-family: 'Inter', sans-serif;
-    background-color: var(--background);
-    color: var(--text-primary);
-    line-height: 1.5;
-    transition: background-color var(--transition-normal),
-                color var(--transition-normal);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+    background-image: 
+        radial-gradient(at 80% 0%, hsla(189, 100%, 56%, 0.1) 0, transparent 50%),
+        radial-gradient(at 0% 50%, hsla(271, 100%, 71%, 0.1) 0, transparent 50%);
+    transition: var(--transition);
 }
 
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
-    font-weight: 600;
+    font-weight: 700;
     line-height: 1.2;
-    margin-bottom: var(--spacing-md);
+    margin-bottom: 1rem;
 }
 
 h1 {
     font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(45deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
 }
 
 h2 {
@@ -101,9 +117,10 @@ p {
 
 /* Layout */
 .app-container {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
 }
 
 .main-content {
@@ -491,27 +508,17 @@ p {
 
 /* Animations */
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes slideUp {
-    from {
-        transform: translateY(20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
 }
 
 .fade-in {
-    animation: fadeIn var(--transition-normal);
+    animation: fadeIn 0.5s ease forwards;
 }
 
 .slide-up {

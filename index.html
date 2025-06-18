@@ -3,264 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SleepSmart - Modern Sleep Calculator</title>
+    <title>DreamCycle | Sleep Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/animations.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#4F46E5">
 </head>
 <body>
-    <div class="app-container">
-        <!-- Navigation -->
-        <nav class="main-nav">
-            <div class="nav-brand">
-                <i class="fas fa-moon"></i>
-                <span>SleepSmart</span>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-moon logo-icon float"></i>
+                <h1>DreamCycle</h1>
             </div>
-            <div class="nav-controls">
-                <button id="themeToggle" class="theme-toggle">
-                    <i class="fas fa-sun"></i>
-                </button>
-                <button id="settingsBtn" class="settings-btn">
-                    <i class="fas fa-cog"></i>
-                </button>
-            </div>
-        </nav>
+            <p class="subtitle">Calculate your optimal sleep and wake times based on sleep cycles for better rest.</p>
+        </header>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Hero Section -->
-            <section class="hero-section">
-                <h1>Optimize Your Sleep</h1>
-                <p>Get personalized sleep recommendations based on science</p>
-            </section>
-
-            <!-- Calculator Section -->
-            <section class="calculator-section">
-                <div class="calculator-tabs">
-                    <button class="tab-btn active" data-tab="bedtime">Bedtime Calculator</button>
-                    <button class="tab-btn" data-tab="wakeup">Wake-up Calculator</button>
-                    <button class="tab-btn" data-tab="nap">Nap Calculator</button>
-                </div>
-
-                <div class="calculator-content">
-                    <!-- Bedtime Calculator -->
-                    <div class="tab-content active" id="bedtime-calc">
-                        <form id="bedtimeForm" class="calculator-form">
-                            <div class="form-group">
-                                <label for="wakeTime">When do you want to wake up?</label>
-                                <input type="time" id="wakeTime" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="ageGroup">Age Group</label>
-                                <select id="ageGroup" required>
-                                    <option value="adult">Adult (18-64)</option>
-                                    <option value="teen">Teen (13-17)</option>
-                                    <option value="child">Child (6-12)</option>
-                                    <option value="senior">Senior (65+)</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="calculate-btn">
-                                <i class="fas fa-calculator"></i>
-                                Calculate Bedtime
-                            </button>
-                        </form>
-                    </div>
-
-                    <!-- Wake-up Calculator -->
-                    <div class="tab-content" id="wakeup-calc">
-                        <form id="wakeupForm" class="calculator-form">
-                            <div class="form-group">
-                                <label for="bedTime">When do you want to go to bed?</label>
-                                <input type="time" id="bedTime" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="ageGroupWake">Age Group</label>
-                                <select id="ageGroupWake" required>
-                                    <option value="adult">Adult (18-64)</option>
-                                    <option value="teen">Teen (13-17)</option>
-                                    <option value="child">Child (6-12)</option>
-                                    <option value="senior">Senior (65+)</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="calculate-btn">
-                                <i class="fas fa-calculator"></i>
-                                Calculate Wake-up Time
-                            </button>
-                        </form>
-                    </div>
-
-                    <!-- Nap Calculator -->
-                    <div class="tab-content" id="nap-calc">
-                        <form id="napForm" class="calculator-form">
-                            <div class="form-group">
-                                <label for="napDuration">Nap Duration</label>
-                                <select id="napDuration" required>
-                                    <option value="20">Power Nap (20 min)</option>
-                                    <option value="30">Short Nap (30 min)</option>
-                                    <option value="60">Long Nap (60 min)</option>
-                                    <option value="90">Full Cycle (90 min)</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="calculate-btn">
-                                <i class="fas fa-calculator"></i>
-                                Calculate Nap Time
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Results Section -->
-            <section class="results-section" id="resultsSection">
-                <div class="results-header">
-                    <h2>Your Sleep Schedule</h2>
-                    <button id="saveSchedule" class="save-btn">
-                        <i class="fas fa-save"></i>
-                        Save Schedule
+        <div class="app-container">
+            <!-- Bedtime Calculator -->
+            <div class="calculator-card">
+                <div class="tabs">
+                    <button class="tab active" data-tab="bedtime">
+                        <i class="fas fa-bed"></i>
+                        Bedtime Calculator
+                    </button>
+                    <button class="tab" data-tab="wakeup">
+                        <i class="fas fa-sun"></i>
+                        Wake-up Calculator
+                    </button>
+                    <button class="tab" data-tab="now">
+                        <i class="fas fa-clock"></i>
+                        Sleep Now
                     </button>
                 </div>
-                <div class="results-content">
-                    <div class="sleep-cycles">
-                        <h3>Sleep Cycles</h3>
-                        <div class="cycles-visualization" id="cyclesChart"></div>
-                    </div>
-                    <div class="sleep-tips">
-                        <h3>Sleep Tips</h3>
-                        <div class="tips-container" id="sleepTips"></div>
-                    </div>
-                </div>
-            </section>
 
-            <!-- Analytics Section -->
-            <section class="analytics-section">
-                <h2>Sleep Analytics</h2>
-                <div class="analytics-grid">
-                    <div class="analytics-card">
-                        <h3>Sleep Quality</h3>
-                        <div class="chart-container" id="qualityChart"></div>
+                <!-- Bedtime Calculator Content -->
+                <div class="tab-content active" id="bedtime-content">
+                    <div class="form-group">
+                        <label for="wake-time">I want to wake up at:</label>
+                        <div class="input-group">
+                            <input type="time" id="wake-time" required>
+                            <button onclick="calculateBedtime()">
+                                <i class="fas fa-calculator"></i>
+                                Calculate
+                            </button>
+                        </div>
                     </div>
-                    <div class="analytics-card">
-                        <h3>Sleep Duration</h3>
-                        <div class="chart-container" id="durationChart"></div>
-                    </div>
-                    <div class="analytics-card">
-                        <h3>Sleep Patterns</h3>
-                        <div class="chart-container" id="patternsChart"></div>
+                    <div class="results" id="bedtime-results">
+                        <h3 class="results-title">Go to bed at one of these times:</h3>
+                        <div id="bedtime-options"></div>
                     </div>
                 </div>
-            </section>
 
-            <!-- Sleep Tips Section -->
-            <section class="tips-section">
-                <h2>Sleep Improvement Tips</h2>
-                <div class="tips-grid">
-                    <div class="tip-card">
-                        <i class="fas fa-bed"></i>
-                        <h3>Sleep Environment</h3>
-                        <p>Keep your bedroom cool, dark, and quiet for optimal sleep.</p>
+                <!-- Wake-up Calculator Content -->
+                <div class="tab-content" id="wakeup-content">
+                    <div class="form-group">
+                        <label for="bed-time">I'm going to bed at:</label>
+                        <div class="input-group">
+                            <input type="time" id="bed-time" required>
+                            <button onclick="calculateWakeup()">
+                                <i class="fas fa-calculator"></i>
+                                Calculate
+                            </button>
+                        </div>
                     </div>
-                    <div class="tip-card">
-                        <i class="fas fa-clock"></i>
-                        <h3>Consistent Schedule</h3>
-                        <p>Maintain regular sleep and wake times, even on weekends.</p>
-                    </div>
-                    <div class="tip-card">
-                        <i class="fas fa-mobile-alt"></i>
-                        <h3>Digital Detox</h3>
-                        <p>Avoid screens 1 hour before bedtime for better sleep quality.</p>
-                    </div>
-                    <div class="tip-card">
-                        <i class="fas fa-coffee"></i>
-                        <h3>Caffeine Control</h3>
-                        <p>Limit caffeine intake after 2 PM for better sleep.</p>
+                    <div class="results" id="wakeup-results">
+                        <h3 class="results-title">Wake up at one of these times:</h3>
+                        <div id="wakeup-options"></div>
                     </div>
                 </div>
-            </section>
-        </main>
 
-        <!-- Settings Modal -->
-        <div class="modal" id="settingsModal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>Settings</h2>
-                    <button class="close-btn">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <div class="settings-group">
-                        <h3>Notifications</h3>
-                        <div class="setting-item">
-                            <label>
-                                <input type="checkbox" id="bedtimeNotif">
-                                Bedtime Reminders
-                            </label>
-                        </div>
-                        <div class="setting-item">
-                            <label>
-                                <input type="checkbox" id="wakeupNotif">
-                                Wake-up Reminders
-                            </label>
-                        </div>
+                <!-- Sleep Now Calculator Content -->
+                <div class="tab-content" id="now-content">
+                    <button class="sleep-now-btn" onclick="calculateFromNow()">
+                        <i class="fas fa-moon"></i>
+                        I'm going to sleep now
+                    </button>
+                    <div class="results" id="now-results">
+                        <h3 class="results-title">Wake up at one of these times:</h3>
+                        <div id="now-options"></div>
                     </div>
-                    <div class="settings-group">
-                        <h3>Display</h3>
-                        <div class="setting-item">
-                            <label>
-                                <input type="checkbox" id="showCycles">
-                                Show Sleep Cycles
-                            </label>
-                        </div>
-                        <div class="setting-item">
-                            <label>
-                                <input type="checkbox" id="showTips">
-                                Show Sleep Tips
-                            </label>
-                        </div>
+                </div>
+            </div>
+
+            <!-- Sleep Information -->
+            <div class="calculator-card">
+                <h2>Sleep Recommendations by Age</h2>
+                <table class="age-table">
+                    <thead>
+                        <tr>
+                            <th>Age Group</th>
+                            <th>Age Range</th>
+                            <th>Recommended Hours</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Newborn</td>
+                            <td>0-3 months</td>
+                            <td>14-17 hours</td>
+                        </tr>
+                        <tr>
+                            <td>Infant</td>
+                            <td>4-12 months</td>
+                            <td>12-16 hours</td>
+                        </tr>
+                        <tr>
+                            <td>Toddler</td>
+                            <td>1-2 years</td>
+                            <td>11-14 hours</td>
+                        </tr>
+                        <tr>
+                            <td>Preschool</td>
+                            <td>3-5 years</td>
+                            <td>10-13 hours</td>
+                        </tr>
+                        <tr>
+                            <td>School Age</td>
+                            <td>6-12 years</td>
+                            <td>9-12 hours</td>
+                        </tr>
+                        <tr>
+                            <td>Teen</td>
+                            <td>13-18 years</td>
+                            <td>8-10 hours</td>
+                        </tr>
+                        <tr>
+                            <td>Adult</td>
+                            <td>18-60 years</td>
+                            <td>7+ hours</td>
+                        </tr>
+                        <tr>
+                            <td>Older Adult</td>
+                            <td>61-64 years</td>
+                            <td>7-9 hours</td>
+                        </tr>
+                        <tr>
+                            <td>Senior</td>
+                            <td>65+ years</td>
+                            <td>7-8 hours</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="info-cards">
+                    <div class="info-card">
+                        <h3><i class="fas fa-temperature-low"></i> Body Temperature</h3>
+                        <p>Drops 1-2 degrees to conserve energy during sleep</p>
+                    </div>
+                    <div class="info-card">
+                        <h3><i class="fas fa-heartbeat"></i> Heart Rate</h3>
+                        <p>Slows during non-REM sleep, increases during REM sleep</p>
+                    </div>
+                    <div class="info-card">
+                        <h3><i class="fas fa-flask"></i> Hormone Levels</h3>
+                        <p>Melatonin rises in the evening, cortisol peaks in the morning</p>
+                    </div>
+                    <div class="info-card">
+                        <h3><i class="fas fa-brain"></i> Brain Activity</h3>
+                        <p>Processes emotions and consolidates memories during sleep</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Footer -->
-        <footer class="main-footer">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>SleepSmart</h3>
-                    <p>Your personal sleep optimization tool</p>
+        <!-- Nap Calculator Section -->
+        <div class="nap-container">
+            <div class="nap-header">
+                <h2>Power Nap Calculator</h2>
+                <p>Find the perfect nap duration to boost your energy</p>
+            </div>
+            <div class="nap-content">
+                <div class="calculator-card">
+                    <div class="form-group">
+                        <label for="nap-duration">Choose your available time:</label>
+                        <select id="nap-duration" onchange="calculateNap()">
+                            <option value="10">10 minutes (Quick refresher)</option>
+                            <option value="20">20 minutes (Power nap)</option>
+                            <option value="30">30 minutes (Short recharge)</option>
+                            <option value="90">90 minutes (Full cycle)</option>
+                        </select>
+                    </div>
+                    <div class="results" id="nap-results">
+                        <h3 class="results-title">Your Nap Schedule:</h3>
+                        <div id="nap-options"></div>
+                    </div>
                 </div>
-                <div class="footer-section">
-                    <h3>Quick Links</h3>
-                    <ul>
-                        <li><a href="#calculator">Calculator</a></li>
-                        <li><a href="#analytics">Analytics</a></li>
-                        <li><a href="#tips">Sleep Tips</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h3>Connect</h3>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-facebook"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
+                <div class="calculator-card">
+                    <h3>Nap Benefits</h3>
+                    <div class="info-card">
+                        <h3><i class="fas fa-bolt"></i> 10-20 Minutes</h3>
+                        <p>Quick boost in alertness and energy</p>
+                    </div>
+                    <div class="info-card">
+                        <h3><i class="fas fa-brain"></i> 30 Minutes</h3>
+                        <p>Improved memory and decision making</p>
+                    </div>
+                    <div class="info-card">
+                        <h3><i class="fas fa-moon"></i> 90 Minutes</h3>
+                        <p>Complete sleep cycle with REM sleep</p>
                     </div>
                 </div>
             </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 SleepSmart. All rights reserved.</p>
-            </div>
-        </footer>
+        </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script type="module" src="js/main.js"></script>
-    <script type="module" src="js/sleep-calculator.js"></script>
-    <script type="module" src="js/sleep-analytics.js"></script>
-    <script type="module" src="js/chart-visualization.js"></script>
-    <script type="module" src="js/notifications.js"></script>
-    <script type="module" src="js/storage-manager.js"></script>
+    <script src="js/sleep-calculator.js"></script>
+    <script src="js/sleep-analytics.js"></script>
+    <script src="js/chart-visualization.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/storage-manager.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html> 

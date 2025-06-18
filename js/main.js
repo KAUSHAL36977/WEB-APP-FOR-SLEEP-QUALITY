@@ -5,6 +5,62 @@ import { ChartVisualizer } from './chart-visualization.js';
 import { NotificationManager } from './notifications.js';
 import { StorageManager } from './storage-manager.js';
 
+// Theme Management
+class ThemeManager {
+    constructor() {
+        this.darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        this.initTheme();
+        this.listenToSystemChanges();
+    }
+
+    initTheme() {
+        // Check local storage first
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            this.setTheme(savedTheme);
+        } else {
+            // Use system preference
+            this.setTheme(this.darkModeMediaQuery.matches ? 'dark' : 'light');
+        }
+    }
+
+    setTheme(theme) {
+        if (theme === 'dark') {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
+        localStorage.setItem('theme', theme);
+    }
+
+    toggleTheme() {
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        this.setTheme(currentTheme === 'light' ? 'dark' : 'light');
+    }
+
+    listenToSystemChanges() {
+        this.darkModeMediaQuery.addEventListener('change', (e) => {
+            this.setTheme(e.matches ? 'dark' : 'light');
+        });
+    }
+}
+
+// App State Management
+class AppState {
+    constructor() {
+        this.currentTab = 'bedtime';
+        this.lastCalculation = null;
+    }
+
+    setCurrentTab(tab) {
+        this.currentTab = tab;
+    }
+
+    setLastCalculation(calculation) {
+        this.lastCalculation = calculation;
+    }
+}
+
 class App {
     constructor() {
         this.calculator = new SleepCalculator();
@@ -12,6 +68,8 @@ class App {
         this.charts = new ChartVisualizer();
         this.notifications = new NotificationManager();
         this.storage = new StorageManager();
+        this.themeManager = new ThemeManager();
+        this.state = new AppState();
         
         this.initializeApp();
     }
@@ -39,21 +97,7 @@ class App {
         
         const themeToggle = document.getElementById('themeToggle');
         if (themeToggle) {
-            themeToggle.addEventListener('click', () => this.toggleTheme());
-        }
-    }
-
-    toggleTheme() {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        
-        document.documentElement.setAttribute('data-theme', newTheme);
-        this.storage.saveTheme(newTheme);
-        
-        // Update theme toggle icon
-        const themeIcon = document.querySelector('#themeToggle i');
-        if (themeIcon) {
-            themeIcon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            themeToggle.addEventListener('click', () => this.themeManager.toggleTheme());
         }
     }
 
@@ -99,6 +143,19 @@ class App {
         if (saveScheduleBtn) {
             saveScheduleBtn.addEventListener('click', () => this.saveCurrentSchedule());
         }
+
+        // Theme toggle
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 't') {
+                this.themeManager.toggleTheme();
+            }
+        });
+
+        // Save calculation results
+        document.addEventListener('calculation-complete', (e) => {
+            this.state.setLastCalculation(e.detail);
+            this.saveToHistory(e.detail);
+        });
     }
 
     async loadSavedData() {
@@ -313,9 +370,53 @@ class App {
             await this.notifications.scheduleWakeupReminder(result.wakeup);
         }
     }
+
+    saveToHistory(calculation) {
+        const history = JSON.parse(localStorage.getItem('calculationHistory') || '[]');
+        history.unshift({
+            ...calculation,
+            timestamp: new Date().toISOString()
+        });
+        // Keep only last 10 calculations
+        history.splice(10);
+        localStorage.setItem('calculationHistory', JSON.stringify(history));
+    }
 }
 
 // Initialize the app when the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     new App();
+
+    // Add smooth scrolling to all links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // Initialize tooltips
+    const tooltips = document.querySelectorAll('[data-tooltip]');
+    tooltips.forEach(tooltip => {
+        tooltip.addEventListener('mouseenter', (e) => {
+            const tip = document.createElement('div');
+            tip.className = 'tooltip';
+            tip.textContent = e.target.dataset.tooltip;
+            document.body.appendChild(tip);
+
+            const rect = e.target.getBoundingClientRect();
+            tip.style.top = `${rect.bottom + 10}px`;
+            tip.style.left = `${rect.left + (rect.width / 2) - (tip.offsetWidth / 2)}px`;
+
+            e.target.addEventListener('mouseleave', () => {
+                tip.remove();
+            }, { once: true });
+        });
+    });
 }); 

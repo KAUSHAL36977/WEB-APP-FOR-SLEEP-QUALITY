@@ -2,9 +2,11 @@
 @keyframes fadeIn {
     from {
         opacity: 0;
+        transform: translateY(10px);
     }
     to {
         opacity: 1;
+        transform: translateY(0);
     }
 }
 
@@ -172,7 +174,7 @@
 
 /* Animation Classes */
 .fade-in {
-    animation: fadeIn var(--transition-normal) ease-out;
+    animation: fadeIn 0.5s ease forwards;
 }
 
 .fade-out {
@@ -216,7 +218,7 @@
 }
 
 .pulse {
-    animation: pulse 2s ease infinite;
+    animation: pulse 2s ease-in-out infinite;
 }
 
 .shake {
@@ -259,15 +261,15 @@
 
 /* Hover Effects */
 .hover-lift {
-    transition: transform var(--transition-fast);
+    transition: transform 0.3s ease;
 }
 
 .hover-lift:hover {
-    transform: translateY(-2px);
+    transform: translateY(-5px);
 }
 
 .hover-scale {
-    transition: transform var(--transition-fast);
+    transition: transform 0.3s ease;
 }
 
 .hover-scale:hover {
@@ -299,6 +301,18 @@
     transition: background-color var(--transition-normal),
                 color var(--transition-normal),
                 border-color var(--transition-normal);
+}
+
+.transition-normal {
+    transition: all 0.3s ease;
+}
+
+.transition-slow {
+    transition: all 0.5s ease;
+}
+
+.transition-fast {
+    transition: all 0.15s ease;
 }
 
 /* Print Styles */
@@ -469,4 +483,59 @@
         animation: none !important;
         transform: none !important;
     }
+}
+
+/* Float Animation */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Slide In Animation */
+@keyframes slideIn {
+    from {
+        transform: translateX(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Rotate Animation */
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Page Transitions */
+.page-enter {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.page-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.page-exit {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.page-exit-active {
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
 } 

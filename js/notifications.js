@@ -1,98 +1,136 @@
 export class NotificationManager {
     constructor() {
-        this.permission = 'default';
-        this.notifications = new Map();
+        this.hasPermission = false;
         this.checkPermission();
+        this.activeNotifications = new Set();
     }
 
     async checkPermission() {
         if (!('Notification' in window)) {
-            console.warn('This browser does not support notifications');
+            console.log('This browser does not support notifications');
             return false;
         }
 
-        this.permission = Notification.permission;
-        return this.permission === 'granted';
+        if (Notification.permission === 'granted') {
+            this.hasPermission = true;
+            return true;
+        }
+
+        if (Notification.permission !== 'denied') {
+            const permission = await Notification.requestPermission();
+            this.hasPermission = permission === 'granted';
+            return this.hasPermission;
+        }
+
+        return false;
     }
 
     async requestPermission() {
-        if (!('Notification' in window)) {
-            return false;
-        }
-
-        try {
-            const permission = await Notification.requestPermission();
-            this.permission = permission;
-            return permission === 'granted';
-        } catch (error) {
-            console.error('Error requesting notification permission:', error);
-            return false;
-        }
+        return await this.checkPermission();
     }
 
-    async scheduleNotification(title, options = {}) {
-        if (!await this.checkPermission()) {
+    scheduleNotification(time, title, options = {}) {
+        if (!this.hasPermission) {
+            console.log('Notification permission not granted');
             return null;
         }
 
-        try {
-            const notification = new Notification(title, {
-                icon: '/images/icon.png',
-                badge: '/images/badge.png',
-                ...options
-            });
+        const now = new Date();
+        const notificationTime = new Date(time);
 
-            this.notifications.set(notification.id, notification);
-
-            notification.addEventListener('close', () => {
-                this.removeNotification(notification.id);
-            });
-
-            return notification;
-        } catch (error) {
-            console.error('Error creating notification:', error);
+        if (notificationTime <= now) {
+            console.log('Cannot schedule notification for past time');
             return null;
         }
+
+        const timeoutId = setTimeout(() => {
+            this.showNotification(title, options);
+        }, notificationTime.getTime() - now.getTime());
+
+        this.activeNotifications.add(timeoutId);
+        return timeoutId;
     }
 
-    removeNotification(id) {
-        const notification = this.notifications.get(id);
-        if (notification) {
+    showNotification(title, options = {}) {
+        if (!this.hasPermission) {
+            console.log('Notification permission not granted');
+            return null;
+        }
+
+        const defaultOptions = {
+            icon: '/favicon.ico',
+            badge: '/favicon.ico',
+            vibrate: [200, 100, 200],
+            silent: false,
+            requireInteraction: true
+        };
+
+        const notification = new Notification(title, { ...defaultOptions, ...options });
+
+        notification.onclick = () => {
+            window.focus();
             notification.close();
-            this.notifications.delete(id);
-        }
+        };
+
+        return notification;
     }
 
-    async scheduleBedtimeReminder(bedtime) {
-        const bedtimeDate = new Date(`2000-01-01T${bedtime}`);
-        const reminderTime = new Date(bedtimeDate.getTime() - (30 * 60000)); // 30 minutes before
-        
-        const now = new Date();
-        const timeUntilReminder = reminderTime.getTime() - now.getTime();
-        
-        if (timeUntilReminder > 0) {
-            setTimeout(() => {
-                this.scheduleNotification('Bedtime Reminder', {
-                    body: `Time to start your bedtime routine! Your bedtime is in 30 minutes.`,
-                    tag: 'bedtime-reminder'
-                });
-            }, timeUntilReminder);
+    cancelNotification(timeoutId) {
+        if (this.activeNotifications.has(timeoutId)) {
+            clearTimeout(timeoutId);
+            this.activeNotifications.delete(timeoutId);
+            return true;
         }
+        return false;
     }
 
-    async scheduleWakeupReminder(wakeup) {
-        const wakeupDate = new Date(`2000-01-01T${wakeup}`);
+    cancelAllNotifications() {
+        this.activeNotifications.forEach(timeoutId => {
+            clearTimeout(timeoutId);
+        });
+        this.activeNotifications.clear();
+    }
+
+    scheduleBedtimeReminder(bedtime, reminderMinutes = 30) {
+        const reminderTime = new Date(bedtime);
+        reminderTime.setMinutes(reminderTime.getMinutes() - reminderMinutes);
+
+        return this.scheduleNotification(
+            reminderTime,
+            'Bedtime Reminder',
+            {
+                body: `Time to start preparing for bed! Your target bedtime is ${bedtime.toLocaleTimeString()}.`,
+                tag: 'bedtime-reminder',
+                data: { type: 'bedtime', time: bedtime }
+            }
+        );
+    }
+
+    scheduleWakeupReminder(wakeupTime) {
+        return this.scheduleNotification(
+            wakeupTime,
+            'Wake Up Time!',
+            {
+                body: 'Rise and shine! It\'s time to wake up refreshed.',
+                tag: 'wakeup-reminder',
+                data: { type: 'wakeup', time: wakeupTime }
+            }
+        );
+    }
+
+    scheduleNapReminder(napDuration) {
         const now = new Date();
-        const timeUntilWakeup = wakeupDate.getTime() - now.getTime();
-        
-        if (timeUntilWakeup > 0) {
-            setTimeout(() => {
-                this.scheduleNotification('Wake-up Time!', {
-                    body: 'Good morning! Time to start your day.',
-                    tag: 'wakeup-reminder'
-                });
-            }, timeUntilWakeup);
-        }
+        const wakeTime = new Date(now.getTime() + napDuration * 60000);
+
+        return this.scheduleNotification(
+            wakeTime,
+            'Nap Time Over',
+            {
+                body: 'Time to wake up from your power nap!',
+                tag: 'nap-reminder',
+                data: { type: 'nap', duration: napDuration }
+            }
+        );
     }
 
     async scheduleSleepQualityReminder() {
@@ -131,13 +169,6 @@ export class NotificationManager {
                 tag: 'sleep-hygiene-reminder'
             });
         }, timeUntilReminder);
-    }
-
-    cancelAllNotifications() {
-        this.notifications.forEach(notification => {
-            notification.close();
-        });
-        this.notifications.clear();
     }
 
     formatTimeForNotification(time) {

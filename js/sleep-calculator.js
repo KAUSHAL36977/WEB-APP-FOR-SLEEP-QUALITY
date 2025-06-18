@@ -24,6 +24,9 @@ export class SleepCalculator {
             'adult': { cycles: 6, minSleep: 7 },
             'senior': { cycles: 5, minSleep: 6 }
         };
+        this.sleepCycleDuration = 90; // minutes
+        this.fallAsleepTime = 15; // minutes
+        this.cyclesForGoodSleep = [5, 6]; // recommended number of sleep cycles
     }
 
     calculateBedtime(wakeTime, ageGroup) {
@@ -152,5 +155,69 @@ export class SleepCalculator {
         }
         
         return tips;
+    }
+
+    // Calculate bedtimes based on desired wake-up time
+    calculateBedtimes(wakeUpTime) {
+        const wakeUpDate = new Date(`2000-01-01T${wakeUpTime}`);
+        const bedtimes = [];
+
+        for (let cycles = this.cyclesForGoodSleep[0]; cycles <= this.cyclesForGoodSleep[1]; cycles++) {
+            const totalSleepMinutes = (cycles * this.sleepCycleDuration) + this.fallAsleepTime;
+            const bedtime = new Date(wakeUpDate.getTime() - totalSleepMinutes * 60000);
+            bedtimes.push({
+                time: bedtime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }),
+                cycles: cycles,
+                duration: this.formatDuration(totalSleepMinutes)
+            });
+        }
+
+        return bedtimes.reverse();
+    }
+
+    // Calculate wake-up times based on bedtime
+    calculateWakeUpTimes(bedTime) {
+        const bedTimeDate = new Date(`2000-01-01T${bedTime}`);
+        const wakeUpTimes = [];
+
+        // Add fall asleep time
+        bedTimeDate.setMinutes(bedTimeDate.getMinutes() + this.fallAsleepTime);
+
+        for (let cycles = this.cyclesForGoodSleep[0]; cycles <= this.cyclesForGoodSleep[1]; cycles++) {
+            const totalSleepMinutes = cycles * this.sleepCycleDuration;
+            const wakeUpTime = new Date(bedTimeDate.getTime() + totalSleepMinutes * 60000);
+            wakeUpTimes.push({
+                time: wakeUpTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }),
+                cycles: cycles,
+                duration: this.formatDuration(totalSleepMinutes + this.fallAsleepTime)
+            });
+        }
+
+        return wakeUpTimes;
+    }
+
+    // Calculate wake-up times from current time
+    calculateFromNow() {
+        const now = new Date();
+        const currentTime = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+        return this.calculateWakeUpTimes(currentTime);
+    }
+
+    // Calculate nap wake-up time
+    calculateNapWakeTime(duration) {
+        const now = new Date();
+        const wakeTime = new Date(now.getTime() + (duration * 60000));
+        return {
+            start: now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }),
+            end: wakeTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }),
+            duration: duration
+        };
+    }
+
+    // Format duration in hours and minutes
+    formatDuration(minutes) {
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        return `${hours}h ${mins}m`;
     }
 } 
