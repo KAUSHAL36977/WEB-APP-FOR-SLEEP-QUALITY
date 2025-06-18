@@ -1,0 +1,2610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DreamCycle | Best of Sleep Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8a2be2;
+            --primary-light: #9d4edd;
+            --secondary: #4cc9f0;
+            --accent: #f72585;
+            --text: #2b2d42;
+            --text-light: #8d99ae;
+            --bg: #f8f9fa;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --card-border: rgba(255, 255, 255, 0.3);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+        }
+        .dark-mode {
+            --primary: #9d4edd;
+            --primary-light: #b388ff;
+            --secondary: #4cc9f0;
+            --accent: #ff7096;
+            --text: #edf2f4;
+            --text-light: #8d99ae;
+            --bg: #121212;
+            --card-bg: rgba(30, 30, 30, 0.85);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(at 80% 0%, hsla(189, 100%, 56%, 0.1) 0, transparent 50%),
+                radial-gradient(at 0% 50%, hsla(271, 100%, 71%, 0.1) 0, transparent 50%);
+            transition: var(--transition);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .logo-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            animation: float 6s ease-in-out infinite;
+        }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        .subtitle {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .nap-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 24px;
+            border: 1px solid var(--card-border);
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            transition: var(--transition);
+            margin-top: 2rem;
+        }
+
+        .nap-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(138, 43, 226, 0.15);
+        }
+
+        .nap-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .nap-header h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .nap-header p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .nap-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .app-container { grid-template-columns: 1fr; }
+            .nap-content { grid-template-columns: 1fr; }
+        }
+        .calculator-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 24px;
+            border: 1px solid var(--card-border);
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            transition: var(--transition);
+            height: fit-content;
+        }
+        .calculator-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(138, 43, 226, 0.15);
+        }
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .tab {
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            background: transparent;
+            border: none;
+            color: var(--text-light);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .tab i { font-size: 1.1rem; }
+        .tab.active {
+            background: rgba(138, 43, 226, 0.1);
+            color: var(--primary);
+        }
+        .tab-content { display: none; animation: fadeIn 0.5s ease; }
+        .tab-content.active { display: block; }
+        .form-group { margin-bottom: 1.5rem; }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .input-group {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+        select, input {
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            background: var(--card-bg);
+            color: var(--text);
+            font-size: 1rem;
+            transition: var(--transition);
+            flex: 1;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.2);
+        }
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%238d99ae' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1rem;
+            padding-right: 2.5rem;
+        }
+        button {
+            background: linear-gradient(45deg, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(138, 43, 226, 0.4);
+        }
+        button:active { transform: translateY(0); }
+        .sleep-now-btn {
+            background: linear-gradient(45deg, var(--accent), #ff8fab);
+            box-shadow: 0 4px 15px rgba(247, 37, 133, 0.3);
+        }
+        .sleep-now-btn:hover {
+            box-shadow: 0 6px 20px rgba(247, 37, 133, 0.4);
+        }
+        .results {
+            margin-top: 2rem;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        .results.active { display: block; }
+        .results-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .results-description {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+        }
+        .time-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .time-card {
+            background: rgba(138, 43, 226, 0.05);
+            border: 1px solid rgba(138, 43, 226, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .time-card:hover {
+            transform: translateY(-5px);
+            background: rgba(138, 43, 226, 0.1);
+            box-shadow: 0 8px 20px rgba(138, 43, 226, 0.1);
+        }
+        .time-card h4 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        .time-card p {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .quality-badge {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            font-size: 1rem;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .quality-excellent {
+            background: rgba(56, 176, 0, 0.2);
+            color: #38b000;
+        }
+        .quality-good {
+            background: rgba(76, 201, 240, 0.2);
+            color: #4cc9f0;
+        }
+        .quality-fair {
+            background: rgba(255, 170, 0, 0.2);
+            color: #ffaa00;
+        }
+        .visualization-container {
+            height: 400px;
+            border-radius: 24px;
+            overflow: hidden;
+            position: relative;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .visualization-placeholder {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-light);
+        }
+        .visualization-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        .theme-toggle {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 2px solid var(--primary);
+            box-shadow: 0 4px 20px rgba(138, 43, 226, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 100;
+            transition: var(--transition);
+            animation: float 3s ease-in-out infinite;
+        }
+        .theme-toggle:hover {
+            transform: scale(1.1) rotate(30deg);
+            box-shadow: 0 6px 25px rgba(138, 43, 226, 0.3);
+        }
+        .theme-toggle i {
+            font-size: 1.5rem;
+            color: var(--primary);
+            transition: var(--transition);
+        }
+        .theme-toggle:hover i {
+            transform: rotate(180deg);
+        }
+        .theme-toggle::before {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            right: 50%;
+            transform: translateX(50%);
+            padding: 0.5rem 1rem;
+            background: var(--card-bg);
+            color: var(--text);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            margin-bottom: 0.5rem;
+            box-shadow: var(--shadow);
+        }
+        .theme-toggle:hover::before {
+            opacity: 1;
+            visibility: visible;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        @media (max-width: 768px) {
+            .container { padding: 1.5rem; }
+            h1 { font-size: 2rem; }
+            .tabs { overflow-x: auto; padding-bottom: 0.5rem; scrollbar-width: none; }
+            .tabs::-webkit-scrollbar { display: none; }
+            .tab { padding: 0.5rem 1rem; font-size: 0.9rem; }
+            .time-list { grid-template-columns: 1fr; }
+            .theme-toggle { bottom: 1rem; right: 1rem; width: 40px; height: 40px; }
+        }
+        .quality-rating {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+        .quality-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            background: transparent;
+            color: var(--primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+        .quality-btn:hover, .quality-btn.active {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.1);
+        }
+        .age-recommendations {
+            background: rgba(138, 43, 226, 0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+        .quality-analysis {
+            background: rgba(138, 43, 226, 0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+        .cycle-analysis {
+            background: rgba(138, 43, 226, 0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+        .cycle-chart {
+            margin: 2rem 0;
+            padding: 1rem;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+        }
+        .cycle-bar {
+            height: 20px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            margin: 0.5rem 0;
+            position: relative;
+        }
+        .cycle-marker {
+            position: absolute;
+            width: 2px;
+            height: 30px;
+            background: var(--accent);
+            top: -5px;
+        }
+        .sleep-analysis {
+            background: rgba(138, 43, 226, 0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+        .sleep-stages {
+            display: flex;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .sleep-stage {
+            flex: 1;
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .sleep-stage h4 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        .sleep-score {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-align: center;
+            margin: 1rem 0;
+        }
+        .sleep-score-label {
+            text-align: center;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+        }
+        .sleep-chart {
+            height: 200px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .sleep-bar {
+            position: absolute;
+            bottom: 0;
+            height: 100%;
+            background: linear-gradient(180deg, var(--primary), var(--secondary));
+            border-radius: 8px;
+            transition: width 1s ease;
+        }
+        .alarm-options {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .alarm-option {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid var(--card-border);
+            border-radius: 12px;
+            background: var(--card-bg);
+            color: var(--text);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .alarm-option i {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+        .alarm-option.active {
+            border-color: var(--primary);
+            background: rgba(138, 43, 226, 0.1);
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-switch label {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--card-bg);
+            border: 2px solid var(--card-border);
+            transition: var(--transition);
+            border-radius: 34px;
+        }
+        .toggle-switch label:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 2px;
+            bottom: 2px;
+            background-color: var(--primary);
+            transition: var(--transition);
+            border-radius: 50%;
+        }
+        .toggle-switch input:checked + label {
+            background-color: rgba(138, 43, 226, 0.1);
+            border-color: var(--primary);
+        }
+        .toggle-switch input:checked + label:before {
+            transform: translateX(26px);
+        }
+        .alarm-settings {
+            background: rgba(138, 43, 226, 0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+        .alarm-timeline {
+            margin: 2rem 0;
+            position: relative;
+            height: 60px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .alarm-window {
+            position: absolute;
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            opacity: 0.2;
+            border-radius: 12px;
+        }
+        .alarm-marker {
+            position: absolute;
+            width: 4px;
+            height: 100%;
+            background: var(--accent);
+            top: 0;
+        }
+        .alarm-marker::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -3px;
+            width: 10px;
+            height: 10px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+        .sleep-guide-calc {
+            padding: 1rem;
+        }
+        .guide-section {
+            margin-bottom: 2rem;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+        }
+        .guide-title {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .sleep-stages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        .sleep-stage-card {
+            background: rgba(138, 43, 226, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+        }
+        .stage-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        .stage-icon.n1 { background: rgba(76, 201, 240, 0.2); color: var(--secondary); }
+        .stage-icon.n2 { background: rgba(138, 43, 226, 0.2); color: var(--primary); }
+        .stage-icon.n3 { background: rgba(247, 37, 133, 0.2); color: var(--accent); }
+        .stage-icon.rem { background: rgba(255, 170, 0, 0.2); color: #ffaa00; }
+        .sleep-stage-card h4 {
+            color: var(--text);
+            margin-bottom: 1rem;
+        }
+        .sleep-stage-card ul {
+            list-style: none;
+            padding: 0;
+        }
+        .sleep-stage-card li {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        .sleep-stage-card li::before {
+            content: '•';
+            color: var(--primary);
+            position: absolute;
+            left: 0;
+        }
+        .age-sleep-table {
+            overflow-x: auto;
+        }
+        .age-sleep-table table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        .age-sleep-table th,
+        .age-sleep-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--card-border);
+        }
+        .age-sleep-table th {
+            background: rgba(138, 43, 226, 0.1);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .age-sleep-table tr:hover {
+            background: rgba(138, 43, 226, 0.05);
+        }
+        .deprivation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .deprivation-card {
+            background: rgba(138, 43, 226, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+        }
+        .deprivation-card h4 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        .deprivation-card ul {
+            list-style: none;
+            padding: 0;
+        }
+        .deprivation-card li {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        .deprivation-card li::before {
+            content: '•';
+            color: var(--accent);
+            position: absolute;
+            left: 0;
+        }
+        .sleep-process-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        .process-card {
+            background: rgba(138, 43, 226, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .process-card i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        .process-card h4 {
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+        .process-card p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        @media (max-width: 768px) {
+            .sleep-stages-grid,
+            .deprivation-grid,
+            .sleep-process-grid {
+                grid-template-columns: 1fr;
+            }
+            .age-sleep-table {
+                font-size: 0.9rem;
+            }
+        }
+        .nap-recommendation {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .nap-recommendation h4 {
+            color: #fff;
+            margin: 0 0 15px 0;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nap-recommendation p {
+            color: #e0e0e0;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .nap-recommendation ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nap-recommendation li {
+            color: #e0e0e0;
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .nap-recommendation li:before {
+            content: "•";
+            color: #4CAF50;
+            position: absolute;
+            left: 0;
+            font-size: 1.2em;
+        }
+
+        .nap-recommendation li:last-child {
+            margin-bottom: 0;
+        }
+
+        #nap-calculator-calc .quality-rating {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        #nap-calculator-calc .quality-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #nap-calculator-calc .quality-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        #nap-calculator-calc .quality-btn.active {
+            background: #4CAF50;
+            border-color: #4CAF50;
+            transform: scale(1.1);
+        }
+
+        #nap-calculator-calc .quality-btn i {
+            font-size: 1.2em;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-moon logo-icon"></i>
+                <h1>DreamCycle</h1>
+            </div>
+            <p class="subtitle">Optimize your sleep with science-based calculations and personalized recommendations</p>
+        </header>
+        <div class="app-container">
+            <div class="calculator-card">
+                <div class="tabs">
+                    <button class="tab active" data-tab="bedtime">
+                        <i class="fas fa-alarm-clock"></i> Wake Up At
+                    </button>
+                    <button class="tab" data-tab="wakeup">
+                        <i class="fas fa-bed"></i> Bedtime At
+                    </button>
+                    <button class="tab" data-tab="sleep-now">
+                        <i class="fas fa-stopwatch"></i> Sleep Now
+                    </button>
+                    <button class="tab" data-tab="sleep-age">
+                        <i class="fas fa-user"></i> Sleep by Age
+                    </button>
+                    <button class="tab" data-tab="sleep-quality">
+                        <i class="fas fa-chart-line"></i> Sleep Quality
+                    </button>
+                    <button class="tab" data-tab="sleep-cycles">
+                        <i class="fas fa-sync"></i> Sleep Cycles
+                    </button>
+                    <button class="tab" data-tab="sleep-tracking">
+                        <i class="fas fa-chart-bar"></i> Sleep Tracking
+                    </button>
+                    <button class="tab" data-tab="smart-alarm">
+                        <i class="fas fa-bell"></i> Smart Alarm
+                    </button>
+                    <button class="tab" data-tab="sleep-guide">
+                        <i class="fas fa-book"></i> Sleep Guide
+                    </button>
+                    <button class="tab" data-tab="nap-calculator">
+                        <i class="fas fa-coffee"></i> Nap Calculator
+                    </button>
+                </div>
+                <div class="tab-content active" id="bedtime-calc">
+                    <div class="form-group">
+                        <label>Select your wake-up time:</label>
+                        <div class="input-group">
+                            <select id="bedtime-hour">
+                                <option value="00">00</option>
+                                <option value="01">01</option>
+                                <option value="02">02</option>
+                                <option value="03">03</option>
+                                <option value="04">04</option>
+                                <option value="05">05</option>
+                                <option value="06">06</option>
+                                <option value="07">07</option>
+                                <option value="08" selected>08</option>
+                                <option value="09">09</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                                <option value="13">13</option>
+                                <option value="14">14</option>
+                                <option value="15">15</option>
+                                <option value="16">16</option>
+                                <option value="17">17</option>
+                                <option value="18">18</option>
+                                <option value="19">19</option>
+                                <option value="20">20</option>
+                                <option value="21">21</option>
+                                <option value="22">22</option>
+                                <option value="23">23</option>
+                            </select>
+                            <select id="bedtime-minute">
+                                <option value="00" selected>00</option>
+                                <option value="05">05</option>
+                                <option value="10">10</option>
+                                <option value="15">15</option>
+                                <option value="20">20</option>
+                                <option value="25">25</option>
+                                <option value="30">30</option>
+                                <option value="35">35</option>
+                                <option value="40">40</option>
+                                <option value="45">45</option>
+                                <option value="50">50</option>
+                                <option value="55">55</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Time to fall asleep:</label>
+                        <select id="fall-asleep-time">
+                            <option value="10">10 minutes</option>
+                            <option value="15" selected>15 minutes</option>
+                            <option value="20">20 minutes</option>
+                            <option value="30">30 minutes</option>
+                            <option value="45">45 minutes</option>
+                            <option value="60">60 minutes</option>
+                        </select>
+                    </div>
+                    <button id="calc-bedtime">
+                        <i class="fas fa-calculator"></i> Calculate Bedtime
+                    </button>
+                    <div class="results" id="bedtime-results">
+                        <h3 class="results-title">
+                            <i class="fas fa-bed"></i> Optimal Bedtimes
+                        </h3>
+                        <p class="results-description">Wake up refreshed by going to bed at one of these times (24-hour format):</p>
+                        <div class="time-list" id="bedtime-list"></div>
+                    </div>
+                </div>
+                <div class="tab-content" id="wakeup-calc">
+                    <div class="form-group">
+                        <label>Select your bedtime:</label>
+                        <div class="input-group">
+                            <select id="wakeup-hour">
+                                <option value="00">00</option>
+                                <option value="01">01</option>
+                                <option value="02">02</option>
+                                <option value="03">03</option>
+                                <option value="04">04</option>
+                                <option value="05">05</option>
+                                <option value="06">06</option>
+                                <option value="07">07</option>
+                                <option value="08">08</option>
+                                <option value="09">09</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                                <option value="13">13</option>
+                                <option value="14">14</option>
+                                <option value="15">15</option>
+                                <option value="16">16</option>
+                                <option value="17">17</option>
+                                <option value="18">18</option>
+                                <option value="19">19</option>
+                                <option value="20">20</option>
+                                <option value="21">21</option>
+                                <option value="22">22</option>
+                                <option value="23" selected>23</option>
+                            </select>
+                            <select id="wakeup-minute">
+                                <option value="00" selected>00</option>
+                                <option value="05">05</option>
+                                <option value="10">10</option>
+                                <option value="15">15</option>
+                                <option value="20">20</option>
+                                <option value="25">25</option>
+                                <option value="30">30</option>
+                                <option value="35">35</option>
+                                <option value="40">40</option>
+                                <option value="45">45</option>
+                                <option value="50">50</option>
+                                <option value="55">55</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Time to fall asleep:</label>
+                        <select id="fall-asleep-time-wake">
+                            <option value="10">10 minutes</option>
+                            <option value="15" selected>15 minutes</option>
+                            <option value="20">20 minutes</option>
+                            <option value="30">30 minutes</option>
+                            <option value="45">45 minutes</option>
+                            <option value="60">60 minutes</option>
+                        </select>
+                    </div>
+                    <button id="calc-wakeup">
+                        <i class="fas fa-calculator"></i> Calculate Wake-up Time
+                    </button>
+                    <div class="results" id="wakeup-results">
+                        <h3 class="results-title">
+                            <i class="fas fa-clock"></i> Optimal Wake-up Times
+                        </h3>
+                        <p class="results-description">Feel refreshed by waking up at one of these times (24-hour format):</p>
+                        <div class="time-list" id="wakeup-list"></div>
+                    </div>
+                </div>
+                <div class="tab-content" id="sleep-now-calc">
+                    <div class="form-group">
+                        <label>Time to fall asleep:</label>
+                        <select id="fall-asleep-time-now">
+                            <option value="10">10 minutes</option>
+                            <option value="15" selected>15 minutes</option>
+                            <option value="20">20 minutes</option>
+                            <option value="30">30 minutes</option>
+                            <option value="45">45 minutes</option>
+                            <option value="60">60 minutes</option>
+                        </select>
+                    </div>
+                    <button id="calc-sleep-now" class="sleep-now-btn">
+                        <i class="fas fa-moon"></i> Calculate Sleep Now Times
+                    </button>
+                    <div class="results" id="sleep-now-results">
+                        <h3 class="results-title">
+                            <i class="fas fa-clock"></i> Optimal Wake-up Times
+                        </h3>
+                        <p class="results-description">Based on the current time, wake up at (24-hour format):</p>
+                        <div class="time-list" id="sleep-now-list"></div>
+                    </div>
+                </div>
+                <div class="tab-content" id="sleep-age-calc">
+                    <div class="form-group">
+                        <label>Select your age group:</label>
+                        <select id="age-group">
+                            <option value="newborn">Newborn (0-3 months)</option>
+                            <option value="infant">Infant (4-11 months)</option>
+                            <option value="toddler">Toddler (1-2 years)</option>
+                            <option value="preschool">Preschool (3-5 years)</option>
+                            <option value="school">School Age (6-13 years)</option>
+                            <option value="teen">Teen (14-17 years)</option>
+                            <option value="young-adult" selected>Young Adult (18-25 years)</option>
+                            <option value="adult">Adult (26-64 years)</option>
+                            <option value="senior">Senior (65+ years)</option>
+                        </select>
+                    </div>
+                    <button id="calc-age-sleep">
+                        <i class="fas fa-calculator"></i> Get Sleep Recommendations
+                    </button>
+                    <div class="results" id="age-sleep-results">
+                        <h3 class="results-title">
+                            <i class="fas fa-user-clock"></i> Age-Specific Sleep Recommendations
+                        </h3>
+                        <div class="age-recommendations" id="age-recommendations"></div>
+                    </div>
+                </div>
+                <div class="tab-content" id="sleep-quality-calc">
+                    <div class="form-group">
+                        <label>How many hours did you sleep last night?</label>
+                        <select id="sleep-hours">
+                            <option value="4">Less than 4 hours</option>
+                            <option value="5">4-5 hours</option>
+                            <option value="6">5-6 hours</option>
+                            <option value="7">6-7 hours</option>
+                            <option value="8" selected>7-8 hours</option>
+                            <option value="9">8-9 hours</option>
+                            <option value="10">More than 9 hours</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>How would you rate your sleep quality?</label>
+                        <div class="quality-rating">
+                            <button class="quality-btn" data-rating="1"><i class="fas fa-face-frown"></i></button>
+                            <button class="quality-btn" data-rating="2"><i class="fas fa-face-meh"></i></button>
+                            <button class="quality-btn" data-rating="3"><i class="fas fa-face-smile"></i></button>
+                            <button class="quality-btn" data-rating="4"><i class="fas fa-face-grin-stars"></i></button>
+                            <button class="quality-btn" data-rating="5"><i class="fas fa-face-grin-hearts"></i></button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Did you wake up during the night?</label>
+                        <select id="wake-ups">
+                            <option value="0">No interruptions</option>
+                            <option value="1">Once</option>
+                            <option value="2">2-3 times</option>
+                            <option value="3">More than 3 times</option>
+                        </select>
+                    </div>
+                    <button id="analyze-sleep-quality">
+                        <i class="fas fa-chart-line"></i> Analyze Sleep Quality
+                    </button>
+                    <div class="results" id="sleep-quality-results">
+                        <h3 class="results-title">
+                            <i class="fas fa-chart-bar"></i> Sleep Quality Analysis
+                        </h3>
+                        <div class="quality-analysis" id="quality-analysis"></div>
+                    </div>
+                </div>
+                <div class="tab-content" id="sleep-cycles-calc">
+                    <div class="form-group">
+                        <label>Your typical sleep duration:</label>
+                        <select id="typical-sleep-duration">
+                            <option value="4">Less than 4 hours</option>
+                            <option value="5">4-5 hours</option>
+                            <option value="6">5-6 hours</option>
+                            <option value="7">6-7 hours</option>
+                            <option value="8" selected>7-8 hours</option>
+                            <option value="9">8-9 hours</option>
+                            <option value="10">More than 9 hours</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Average sleep quality:</label>
+                        <div class="quality-rating">
+                            <button class="quality-btn" data-rating="1"><i class="fas fa-face-frown"></i></button>
+                            <button class="quality-btn" data-rating="2"><i class="fas fa-face-meh"></i></button>
+                            <button class="quality-btn" data-rating="3"><i class="fas fa-face-smile"></i></button>
+                            <button class="quality-btn" data-rating="4"><i class="fas fa-face-grin-stars"></i></button>
+                            <button class="quality-btn" data-rating="5"><i class="fas fa-face-grin-hearts"></i></button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Typical number of wake-ups per night:</label>
+                        <select id="typical-wake-ups">
+                            <option value="0">No interruptions</option>
+                            <option value="1">Once</option>
+                            <option value="2">2-3 times</option>
+                            <option value="3">More than 3 times</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Time to fall asleep:</label>
+                        <select id="fall-asleep-time-cycles">
+                            <option value="10">10 minutes</option>
+                            <option value="15" selected>15 minutes</option>
+                            <option value="20">20 minutes</option>
+                            <option value="30">30 minutes</option>
+                            <option value="45">45 minutes</option>
+                            <option value="60">60 minutes</option>
+                        </select>
+                    </div>
+                    <button id="analyze-sleep-cycles">
+                        <i class="fas fa-sync"></i> Analyze Sleep Cycles
+                    </button>
+                    <div class="results" id="sleep-cycles-results">
+                        <h3 class="results-title">
+                            <i class="fas fa-sync"></i> Sleep Cycle Analysis
+                        </h3>
+                        <div class="cycle-analysis" id="cycle-analysis"></div>
+                    </div>
+                </div>
+                <div class="tab-content" id="sleep-tracking-calc">
+                    <div class="form-group">
+                        <label>Sleep Start Time:</label>
+                        <div class="input-group">
+                            <select id="sleep-start-hour">
+                                <option value="00">00</option>
+                                <option value="01">01</option>
+                                <option value="02">02</option>
+                                <option value="03">03</option>
+                                <option value="04">04</option>
+                                <option value="05">05</option>
+                                <option value="06">06</option>
+                                <option value="07">07</option>
+                                <option value="08">08</option>
+                                <option value="09">09</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                                <option value="13">13</option>
+                                <option value="14">14</option>
+                                <option value="15">15</option>
+                                <option value="16">16</option>
+                                <option value="17">17</option>
+                                <option value="18">18</option>
+                                <option value="19">19</option>
+                                <option value="20">20</option>
+                                <option value="21">21</option>
+                                <option value="22">22</option>
+                                <option value="23" selected>23</option>
+                            </select>
+                            <select id="sleep-start-minute">
+                                <option value="00" selected>00</option>
+                                <option value="05">05</option>
+                                <option value="10">10</option>
+                                <option value="15">15</option>
+                                <option value="20">20</option>
+                                <option value="25">25</option>
+                                <option value="30">30</option>
+                                <option value="35">35</option>
+                                <option value="40">40</option>
+                                <option value="45">45</option>
+                                <option value="50">50</option>
+                                <option value="55">55</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Sleep End Time:</label>
+                        <div class="input-group">
+                            <select id="sleep-end-hour">
+                                <option value="00">00</option>
+                                <option value="01">01</option>
+                                <option value="02">02</option>
+                                <option value="03">03</option>
+                                <option value="04">04</option>
+                                <option value="05">05</option>
+                                <option value="06">06</option>
+                                <option value="07">07</option>
+                                <option value="08" selected>08</option>
+                                <option value="09">09</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                                <option value="13">13</option>
+                                <option value="14">14</option>
+                                <option value="15">15</option>
+                                <option value="16">16</option>
+                                <option value="17">17</option>
+                                <option value="18">18</option>
+                                <option value="19">19</option>
+                                <option value="20">20</option>
+                                <option value="21">21</option>
+                                <option value="22">22</option>
+                                <option value="23">23</option>
+                            </select>
+                            <select id="sleep-end-minute">
+                                <option value="00" selected>00</option>
+                                <option value="05">05</option>
+                                <option value="10">10</option>
+                                <option value="15">15</option>
+                                <option value="20">20</option>
+                                <option value="25">25</option>
+                                <option value="30">30</option>
+                                <option value="35">35</option>
+                                <option value="40">40</option>
+                                <option value="45">45</option>
+                                <option value="50">50</option>
+                                <option value="55">55</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Sleep Quality:</label>
+                        <div class="quality-rating">
+                            <button class="quality-btn" data-rating="1"><i class="fas fa-face-frown"></i></button>
+                            <button class="quality-btn" data-rating="2"><i class="fas fa-face-meh"></i></button>
+                            <button class="quality-btn" data-rating="3"><i class="fas fa-face-smile"></i></button>
+                            <button class="quality-btn" data-rating="4"><i class="fas fa-face-grin-stars"></i></button>
+                            <button class="quality-btn" data-rating="5"><i class="fas fa-face-grin-hearts"></i></button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Number of Wake-ups:</label>
+                        <select id="tracking-wake-ups">
+                            <option value="0">No interruptions</option>
+                            <option value="1">Once</option>
+                            <option value="2">2-3 times</option>
+                            <option value="3">More than 3 times</option>
+                        </select>
+                    </div>
+                    <button id="analyze-sleep-tracking">
+                        <i class="fas fa-chart-bar"></i> Analyze Sleep
+                    </button>
+                    <div class="results" id="sleep-tracking-results">
+                        <h3 class="results-title">
+                            <i class="fas fa-chart-bar"></i> Sleep Analysis
+                        </h3>
+                        <div class="sleep-analysis" id="sleep-analysis"></div>
+                    </div>
+                </div>
+                <div class="tab-content" id="smart-alarm-calc">
+                    <div class="form-group">
+                        <label>Target Wake-up Time:</label>
+                        <div class="input-group">
+                            <select id="alarm-hour">
+                                <option value="00">00</option>
+                                <option value="01">01</option>
+                                <option value="02">02</option>
+                                <option value="03">03</option>
+                                <option value="04">04</option>
+                                <option value="05">05</option>
+                                <option value="06">06</option>
+                                <option value="07">07</option>
+                                <option value="08" selected>08</option>
+                                <option value="09">09</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                                <option value="13">13</option>
+                                <option value="14">14</option>
+                                <option value="15">15</option>
+                                <option value="16">16</option>
+                                <option value="17">17</option>
+                                <option value="18">18</option>
+                                <option value="19">19</option>
+                                <option value="20">20</option>
+                                <option value="21">21</option>
+                                <option value="22">22</option>
+                                <option value="23">23</option>
+                            </select>
+                            <select id="alarm-minute">
+                                <option value="00" selected>00</option>
+                                <option value="05">05</option>
+                                <option value="10">10</option>
+                                <option value="15">15</option>
+                                <option value="20">20</option>
+                                <option value="25">25</option>
+                                <option value="30">30</option>
+                                <option value="35">35</option>
+                                <option value="40">40</option>
+                                <option value="45">45</option>
+                                <option value="50">50</option>
+                                <option value="55">55</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Wake-up Window:</label>
+                        <select id="wakeup-window">
+                            <option value="15">15 minutes</option>
+                            <option value="20">20 minutes</option>
+                            <option value="30" selected>30 minutes</option>
+                            <option value="45">45 minutes</option>
+                            <option value="60">60 minutes</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Alarm Type:</label>
+                        <div class="alarm-options">
+                            <button class="alarm-option active" data-type="sound">
+                                <i class="fas fa-music"></i>
+                                <span>Sound</span>
+                            </button>
+                            <button class="alarm-option" data-type="vibration">
+                                <i class="fas fa-vibrate"></i>
+                                <span>Vibration</span>
+                            </button>
+                            <button class="alarm-option" data-type="both">
+                                <i class="fas fa-volume-up"></i>
+                                <span>Both</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Alarm Sound:</label>
+                        <select id="alarm-sound">
+                            <option value="gentle">Gentle Chimes</option>
+                            <option value="nature">Nature Sounds</option>
+                            <option value="piano">Piano Melody</option>
+                            <option value="bell">Soft Bell</option>
+                            <option value="waves">Ocean Waves</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Gradual Volume:</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="gradual-volume" checked>
+                            <label for="gradual-volume"></label>
+                        </div>
+                    </div>
+                    <button id="set-smart-alarm">
+                        <i class="fas fa-bell"></i> Set Smart Alarm
+                    </button>
+                    <div class="results" id="smart-alarm-results">
+                        <h3 class="results-title">
+                            <i class="fas fa-bell"></i> Smart Alarm Settings
+                        </h3>
+                        <div class="alarm-settings" id="alarm-settings"></div>
+                    </div>
+                </div>
+                <div class="tab-content" id="sleep-guide-calc">
+                    <div class="guide-section">
+                        <h3 class="guide-title">
+                            <i class="fas fa-moon"></i> Understanding Sleep Cycles
+                        </h3>
+                        <div class="sleep-stages-grid">
+                            <div class="sleep-stage-card">
+                                <div class="stage-icon n1">
+                                    <i class="fas fa-bed"></i>
+                                </div>
+                                <h4>N1 Stage (Dozing Off)</h4>
+                                <ul>
+                                    <li>1-7 minutes duration</li>
+                                    <li>Light sleep, easy to wake</li>
+                                    <li>Body starts relaxing</li>
+                                    <li>Brain waves slow down</li>
+                                    <li>May experience hypnic jerks</li>
+                                </ul>
+                            </div>
+                            <div class="sleep-stage-card">
+                                <div class="stage-icon n2">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <h4>N2 Stage (Light Sleep)</h4>
+                                <ul>
+                                    <li>50% of total sleep time</li>
+                                    <li>Heart rate decreases</li>
+                                    <li>Body temperature drops</li>
+                                    <li>Memory consolidation</li>
+                                    <li>Less awareness of surroundings</li>
+                                </ul>
+                            </div>
+                            <div class="sleep-stage-card">
+                                <div class="stage-icon n3">
+                                    <i class="fas fa-heart"></i>
+                                </div>
+                                <h4>N3 Stage (Deep Sleep)</h4>
+                                <ul>
+                                    <li>Starts ~40 minutes after falling asleep</li>
+                                    <li>Critical for restoration</li>
+                                    <li>Hormone regulation</li>
+                                    <li>Tissue repair</li>
+                                    <li>Immune system boost</li>
+                                </ul>
+                            </div>
+                            <div class="sleep-stage-card">
+                                <div class="stage-icon rem">
+                                    <i class="fas fa-eye"></i>
+                                </div>
+                                <h4>REM Stage (Dream Sleep)</h4>
+                                <ul>
+                                    <li>Lightest sleep stage</li>
+                                    <li>Active brain activity</li>
+                                    <li>Memory and mood regulation</li>
+                                    <li>Dreaming occurs</li>
+                                    <li>Duration increases with each cycle</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="guide-section">
+                        <h3 class="guide-title">
+                            <i class="fas fa-clock"></i> Sleep Duration by Age
+                        </h3>
+                        <div class="age-sleep-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Age Group</th>
+                                        <th>Age Range</th>
+                                        <th>Recommended Hours</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Newborn</td>
+                                        <td>0-3 months</td>
+                                        <td>14-17 hours</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Infant</td>
+                                        <td>4-12 months</td>
+                                        <td>12-16 hours</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Toddler</td>
+                                        <td>1-2 years</td>
+                                        <td>11-14 hours</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Preschool</td>
+                                        <td>3-5 years</td>
+                                        <td>10-13 hours</td>
+                                    </tr>
+                                    <tr>
+                                        <td>School Age</td>
+                                        <td>6-12 years</td>
+                                        <td>9-12 hours</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Teen</td>
+                                        <td>13-18 years</td>
+                                        <td>8-10 hours</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Adult</td>
+                                        <td>18-60 years</td>
+                                        <td>7+ hours</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Older Adult</td>
+                                        <td>61-64 years</td>
+                                        <td>7-9 hours</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Senior</td>
+                                        <td>65+ years</td>
+                                        <td>7-8 hours</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="guide-section">
+                        <h3 class="guide-title">
+                            <i class="fas fa-exclamation-triangle"></i> Effects of Sleep Deprivation
+                        </h3>
+                        <div class="deprivation-grid">
+                            <div class="deprivation-card">
+                                <h4>Short-term Effects</h4>
+                                <ul>
+                                    <li>Fatigue and irritability</li>
+                                    <li>Trouble concentrating</li>
+                                    <li>Slower reaction times</li>
+                                    <li>Impaired judgment</li>
+                                    <li>Daytime sleepiness</li>
+                                    <li>Mood swings</li>
+                                    <li>Memory issues</li>
+                                </ul>
+                            </div>
+                            <div class="deprivation-card">
+                                <h4>Long-term Effects</h4>
+                                <ul>
+                                    <li>Higher risk of obesity</li>
+                                    <li>Heart disease and stroke</li>
+                                    <li>Diabetes</li>
+                                    <li>Cognitive problems</li>
+                                    <li>Memory loss</li>
+                                    <li>Anxiety and depression</li>
+                                    <li>Increased dementia risk</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="guide-section">
+                        <h3 class="guide-title">
+                            <i class="fas fa-heartbeat"></i> What Happens During Sleep
+                        </h3>
+                        <div class="sleep-process-grid">
+                            <div class="process-card">
+                                <i class="fas fa-thermometer-half"></i>
+                                <h4>Body Temperature</h4>
+                                <p>Drops 1-2 degrees to conserve energy</p>
+                            </div>
+                            <div class="process-card">
+                                <i class="fas fa-heart"></i>
+                                <h4>Heart Rate</h4>
+                                <p>Slows during non-REM, increases during REM</p>
+                            </div>
+                            <div class="process-card">
+                                <i class="fas fa-fire"></i>
+                                <h4>Metabolism</h4>
+                                <p>Decreases, affecting hunger hormones</p>
+                            </div>
+                            <div class="process-card">
+                                <i class="fas fa-brain"></i>
+                                <h4>Brain Activity</h4>
+                                <p>Processes emotions and consolidates memories</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-content" id="nap-calculator-calc">
+                    <div class="form-group">
+                        <label>When do you want to take your nap?</label>
+                        <div class="input-group">
+                            <select id="nap-hour">
+                                <option value="00">00</option>
+                                <option value="01">01</option>
+                                <option value="02">02</option>
+                                <option value="03">03</option>
+                                <option value="04">04</option>
+                                <option value="05">05</option>
+                                <option value="06">06</option>
+                                <option value="07">07</option>
+                                <option value="08">08</option>
+                                <option value="09">09</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                                <option value="13" selected>13</option>
+                                <option value="14">14</option>
+                                <option value="15">15</option>
+                                <option value="16">16</option>
+                                <option value="17">17</option>
+                                <option value="18">18</option>
+                                <option value="19">19</option>
+                                <option value="20">20</option>
+                                <option value="21">21</option>
+                                <option value="22">22</option>
+                                <option value="23">23</option>
+                            </select>
+                            <select id="nap-minute">
+                                <option value="00" selected>00</option>
+                                <option value="05">05</option>
+                                <option value="10">10</option>
+                                <option value="15">15</option>
+                                <option value="20">20</option>
+                                <option value="25">25</option>
+                                <option value="30">30</option>
+                                <option value="35">35</option>
+                                <option value="40">40</option>
+                                <option value="45">45</option>
+                                <option value="50">50</option>
+                                <option value="55">55</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>How much sleep did you get last night?</label>
+                        <select id="last-night-sleep">
+                            <option value="4">Less than 4 hours</option>
+                            <option value="5">4-5 hours</option>
+                            <option value="6">5-6 hours</option>
+                            <option value="7">6-7 hours</option>
+                            <option value="8" selected>7-8 hours</option>
+                            <option value="9">8-9 hours</option>
+                            <option value="10">More than 9 hours</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>How do you feel right now?</label>
+                        <div class="quality-rating">
+                            <button class="quality-btn" data-rating="1"><i class="fas fa-face-tired"></i></button>
+                            <button class="quality-btn" data-rating="2"><i class="fas fa-face-meh"></i></button>
+                            <button class="quality-btn" data-rating="3"><i class="fas fa-face-smile"></i></button>
+                            <button class="quality-btn" data-rating="4"><i class="fas fa-face-grin-stars"></i></button>
+                            <button class="quality-btn" data-rating="5"><i class="fas fa-face-grin-hearts"></i></button>
+                        </div>
+                    </div>
+                    <button id="calculate-nap">
+                        <i class="fas fa-calculator"></i> Calculate Optimal Nap
+                    </button>
+                    <div class="results" id="nap-results">
+                        <h3 class="results-title">
+                            <i class="fas fa-coffee"></i> Nap Recommendations
+                        </h3>
+                        <div class="nap-analysis" id="nap-analysis"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="visualization-container">
+                <div class="visualization-placeholder">
+                    <i class="fas fa-moon"></i>
+                    <h3>Sleep Cycle Visualization</h3>
+                    <p>Calculate your sleep times to see a visualization of your sleep cycles</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="nap-container">
+        <div class="nap-header">
+            <h2>Power Nap Calculator</h2>
+            <p>Optimize your daytime rest with science-based nap recommendations</p>
+        </div>
+        <div class="nap-content">
+            <div class="calculator-card">
+                <div class="form-group">
+                    <label>When do you want to take your nap?</label>
+                    <div class="input-group">
+                        <select id="nap-hour">
+                            <option value="00">00</option>
+                            <option value="01">01</option>
+                            <option value="02">02</option>
+                            <option value="03">03</option>
+                            <option value="04">04</option>
+                            <option value="05">05</option>
+                            <option value="06">06</option>
+                            <option value="07">07</option>
+                            <option value="08">08</option>
+                            <option value="09">09</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                            <option value="13" selected>13</option>
+                            <option value="14">14</option>
+                            <option value="15">15</option>
+                            <option value="16">16</option>
+                            <option value="17">17</option>
+                            <option value="18">18</option>
+                            <option value="19">19</option>
+                            <option value="20">20</option>
+                            <option value="21">21</option>
+                            <option value="22">22</option>
+                            <option value="23">23</option>
+                        </select>
+                        <select id="nap-minute">
+                            <option value="00" selected>00</option>
+                            <option value="05">05</option>
+                            <option value="10">10</option>
+                            <option value="15">15</option>
+                            <option value="20">20</option>
+                            <option value="25">25</option>
+                            <option value="30">30</option>
+                            <option value="35">35</option>
+                            <option value="40">40</option>
+                            <option value="45">45</option>
+                            <option value="50">50</option>
+                            <option value="55">55</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>How much sleep did you get last night?</label>
+                    <select id="last-night-sleep">
+                        <option value="4">Less than 4 hours</option>
+                        <option value="5">4-5 hours</option>
+                        <option value="6">5-6 hours</option>
+                        <option value="7">6-7 hours</option>
+                        <option value="8" selected>7-8 hours</option>
+                        <option value="9">8-9 hours</option>
+                        <option value="10">More than 9 hours</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>How do you feel right now?</label>
+                    <div class="quality-rating">
+                        <button class="quality-btn" data-rating="1"><i class="fas fa-face-tired"></i></button>
+                        <button class="quality-btn" data-rating="2"><i class="fas fa-face-meh"></i></button>
+                        <button class="quality-btn" data-rating="3"><i class="fas fa-face-smile"></i></button>
+                        <button class="quality-btn" data-rating="4"><i class="fas fa-face-grin-stars"></i></button>
+                        <button class="quality-btn" data-rating="5"><i class="fas fa-face-grin-hearts"></i></button>
+                    </div>
+                </div>
+                <button id="calculate-nap">
+                    <i class="fas fa-calculator"></i> Calculate Optimal Nap
+                </button>
+            </div>
+            <div class="visualization-container" id="nap-visualization">
+                <div class="visualization-placeholder">
+                    <i class="fas fa-coffee"></i>
+                    <h3>Nap Recommendations</h3>
+                    <p>Calculate your optimal nap time to see personalized recommendations</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="theme-toggle" id="theme-toggle" data-tooltip="Toggle Dark/Light Mode">
+        <i class="fas fa-moon"></i>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // System theme detection
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const savedTheme = localStorage.getItem('theme');
+            const themeToggle = document.getElementById('theme-toggle');
+            
+            function updateTheme(isDark) {
+                if (isDark) {
+                    document.body.classList.add('dark-mode');
+                    themeToggle.querySelector('i').className = 'fas fa-sun';
+                    themeToggle.setAttribute('data-tooltip', 'Switch to Light Mode');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    themeToggle.querySelector('i').className = 'fas fa-moon';
+                    themeToggle.setAttribute('data-tooltip', 'Switch to Dark Mode');
+                }
+            }
+
+            // Initialize theme
+            if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+                updateTheme(true);
+                localStorage.setItem('theme', 'dark');
+            } else {
+                updateTheme(false);
+                localStorage.setItem('theme', 'light');
+            }
+
+            // Theme toggle click handler
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function() {
+                    const isDark = !document.body.classList.contains('dark-mode');
+                    updateTheme(isDark);
+                    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                });
+            }
+            // Tab switching
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.tab, .tab-content').forEach(el => {
+                        el.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    const targetTab = this.getAttribute('data-tab');
+                    document.getElementById(`${targetTab}-calc`).classList.add('active');
+                });
+            });
+            // Time calculation functions
+            function parseTime(hour, minute) {
+                return parseInt(hour) * 60 + parseInt(minute);
+            }
+
+            function formatTime(minutes) {
+                if (minutes < 0) minutes += 1440;
+                minutes = minutes % 1440;
+                const hrs = Math.floor(minutes / 60) % 24;
+                const mins = minutes % 60;
+                return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+            }
+
+            function calculateCycles(baseTime, fallAsleep, isBedtimeCalc) {
+                const cycleDuration = 90;
+                const totalFallAsleep = parseInt(fallAsleep);
+                const results = [];
+                for (let cycles = 6; cycles >= 4; cycles--) {
+                    const totalMinutes = (cycles * cycleDuration) + totalFallAsleep;
+                    const targetTime = isBedtimeCalc ? 
+                        baseTime - totalMinutes : 
+                        baseTime + totalMinutes;
+                    results.push({
+                        time: formatTime(targetTime),
+                        cycles: cycles,
+                        quality: cycles >= 6 ? 'excellent' : cycles >= 5 ? 'good' : 'fair',
+                        totalMinutes: cycles * 90
+                    });
+                }
+                return results;
+            }
+            // Bedtime calculation
+            const calcBedtimeBtn = document.getElementById('calc-bedtime');
+            if (calcBedtimeBtn) {
+                calcBedtimeBtn.addEventListener('click', function() {
+                    const hour = document.getElementById('bedtime-hour').value;
+                    const minute = document.getElementById('bedtime-minute').value;
+                    const fallAsleep = document.getElementById('fall-asleep-time').value;
+                    const wakeTime = parseTime(hour, minute);
+                    const results = calculateCycles(wakeTime, fallAsleep, true);
+                    displayResults(results, '#bedtime-list');
+                    document.getElementById('bedtime-results').classList.add('active');
+                    updateVisualization(results);
+                });
+            }
+            // Wake-up time calculation
+            const calcWakeupBtn = document.getElementById('calc-wakeup');
+            if (calcWakeupBtn) {
+                calcWakeupBtn.addEventListener('click', function() {
+                    const hour = document.getElementById('wakeup-hour').value;
+                    const minute = document.getElementById('wakeup-minute').value;
+                    const fallAsleep = document.getElementById('fall-asleep-time-wake').value;
+                    const bedTime = parseTime(hour, minute);
+                    const results = calculateCycles(bedTime, fallAsleep, false);
+                    displayResults(results, '#wakeup-list');
+                    document.getElementById('wakeup-results').classList.add('active');
+                    updateVisualization(results);
+                });
+            }
+            // Sleep now calculation
+            const calcSleepNowBtn = document.getElementById('calc-sleep-now');
+            if (calcSleepNowBtn) {
+                calcSleepNowBtn.addEventListener('click', function() {
+                    const now = new Date();
+                    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+                    const fallAsleep = document.getElementById('fall-asleep-time-now').value;
+                    const results = calculateCycles(currentMinutes, fallAsleep, false);
+                    displayResults(results, '#sleep-now-list');
+                    document.getElementById('sleep-now-results').classList.add('active');
+                    updateVisualization(results);
+                });
+            }
+            // Display results function
+            function displayResults(results, containerSelector) {
+                const container = document.querySelector(containerSelector);
+                if (!container) return;
+                container.innerHTML = '';
+                results.forEach(res => {
+                    const qualityClass = `quality-${res.quality}`;
+                    const qualityIcon = {
+                        excellent: '<i class="fas fa-star"></i>',
+                        good: '<i class="fas fa-thumbs-up"></i>',
+                        fair: '<i class="fas fa-exclamation-triangle"></i>'
+                    }[res.quality];
+                    const timeCard = document.createElement('div');
+                    timeCard.className = 'time-card';
+                    timeCard.innerHTML = `
+                        <div class="quality-badge ${qualityClass}">${qualityIcon}</div>
+                        <h4>${res.cycles} Cycles (${res.cycles * 1.5} hrs)</h4>
+                        <p>${res.time}</p>
+                    `;
+                    container.appendChild(timeCard);
+                });
+            }
+            // Visualization update function
+            function updateVisualization(results) {
+                const container = document.querySelector('.visualization-container');
+                if (!container) return;
+                container.innerHTML = `
+                    <div class="visualization-placeholder">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>Sleep Cycles Calculated</h3>
+                        <p>${results.length} optimal sleep cycles found</p>
+                        <small>All times shown in 24-hour format</small>
+                    </div>
+                `;
+                container.querySelector('.visualization-placeholder').style.animation = 'fadeIn 0.5s ease';
+            }
+            // Initialize with default calculation
+            function initializeCalculator() {
+                const defaultEvent = new Event('click');
+                if (calcBedtimeBtn) calcBedtimeBtn.dispatchEvent(defaultEvent);
+            }
+            initializeCalculator();
+            // Age-specific sleep recommendations
+            const ageRecommendations = {
+                'newborn': { hours: '14-17', description: 'Newborns need frequent sleep throughout the day and night.' },
+                'infant': { hours: '12-15', description: 'Infants typically sleep in shorter periods with multiple naps.' },
+                'toddler': { hours: '11-14', description: 'Toddlers need consistent sleep schedules with one or two naps.' },
+                'preschool': { hours: '10-13', description: 'Preschoolers benefit from a regular bedtime routine.' },
+                'school': { hours: '9-11', description: 'School-age children need consistent sleep for growth and learning.' },
+                'teen': { hours: '8-10', description: 'Teens need more sleep due to rapid physical and mental development.' },
+                'young-adult': { hours: '7-9', description: 'Young adults need consistent sleep for optimal performance.' },
+                'adult': { hours: '7-9', description: 'Adults need regular sleep for physical and mental health.' },
+                'senior': { hours: '7-8', description: 'Seniors may need slightly less sleep but still require quality rest.' }
+            };
+
+            const calcAgeSleepBtn = document.getElementById('calc-age-sleep');
+            if (calcAgeSleepBtn) {
+                calcAgeSleepBtn.addEventListener('click', function() {
+                    const ageGroup = document.getElementById('age-group').value;
+                    const recommendation = ageRecommendations[ageGroup];
+                    const container = document.getElementById('age-recommendations');
+                    container.innerHTML = `
+                        <h4>Recommended Sleep Duration: ${recommendation.hours} hours</h4>
+                        <p>${recommendation.description}</p>
+                        <div class="tips">
+                            <h4>Tips for Better Sleep:</h4>
+                            <ul>
+                                <li>Maintain a consistent sleep schedule</li>
+                                <li>Create a relaxing bedtime routine</li>
+                                <li>Keep your bedroom cool, dark, and quiet</li>
+                                <li>Avoid screens before bedtime</li>
+                                <li>Limit caffeine and heavy meals before sleep</li>
+                            </ul>
+                        </div>
+                    `;
+                    document.getElementById('age-sleep-results').classList.add('active');
+                });
+            }
+
+            // Sleep quality analysis
+            const qualityBtns = document.querySelectorAll('.quality-btn');
+            qualityBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    qualityBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            const analyzeSleepQualityBtn = document.getElementById('analyze-sleep-quality');
+            if (analyzeSleepQualityBtn) {
+                analyzeSleepQualityBtn.addEventListener('click', function() {
+                    const hours = parseInt(document.getElementById('sleep-hours').value);
+                    const wakeUps = parseInt(document.getElementById('wake-ups').value);
+                    const qualityRating = document.querySelector('.quality-btn.active')?.dataset.rating || 3;
+                    
+                    let analysis = '';
+                    let score = 0;
+                    
+                    // Calculate score
+                    score += (hours >= 7 && hours <= 9) ? 2 : (hours >= 6 && hours <= 10) ? 1 : 0;
+                    score += (5 - qualityRating);
+                    score += (wakeUps === 0) ? 2 : (wakeUps === 1) ? 1 : 0;
+                    
+                    const container = document.getElementById('quality-analysis');
+                    container.innerHTML = `
+                        <h4>Sleep Quality Score: ${score}/5</h4>
+                        <p>${getQualityFeedback(score)}</p>
+                        <div class="recommendations">
+                            <h4>Recommendations:</h4>
+                            <ul>
+                                ${getRecommendations(hours, wakeUps, qualityRating)}
+                            </ul>
+                        </div>
+                    `;
+                    document.getElementById('sleep-quality-results').classList.add('active');
+                });
+            }
+
+            function getQualityFeedback(score) {
+                if (score >= 4) return "Excellent sleep quality! Keep up your good sleep habits.";
+                if (score >= 3) return "Good sleep quality, but there's room for improvement.";
+                if (score >= 2) return "Fair sleep quality. Consider implementing some sleep improvements.";
+                return "Poor sleep quality. It's important to address your sleep habits.";
+            }
+
+            function getRecommendations(hours, wakeUps, quality) {
+                let recommendations = [];
+                
+                if (hours < 7) {
+                    recommendations.push("Try to increase your sleep duration gradually");
+                } else if (hours > 9) {
+                    recommendations.push("Consider reducing your sleep duration to avoid oversleeping");
+                }
+                
+                if (wakeUps > 0) {
+                    recommendations.push("Limit fluid intake before bedtime");
+                    recommendations.push("Create a more comfortable sleep environment");
+                }
+                
+                if (quality <= 3) {
+                    recommendations.push("Establish a consistent bedtime routine");
+                    recommendations.push("Avoid screens and bright lights before bed");
+                    recommendations.push("Consider relaxation techniques before sleep");
+                }
+                
+                return recommendations.map(rec => `<li>${rec}</li>`).join('');
+            }
+
+            // Sleep tracking analysis
+            const analyzeSleepTrackingBtn = document.getElementById('analyze-sleep-tracking');
+            if (analyzeSleepTrackingBtn) {
+                analyzeSleepTrackingBtn.addEventListener('click', function() {
+                    const startHour = document.getElementById('sleep-start-hour').value;
+                    const startMinute = document.getElementById('sleep-start-minute').value;
+                    const endHour = document.getElementById('sleep-end-hour').value;
+                    const endMinute = document.getElementById('sleep-end-minute').value;
+                    const quality = document.querySelector('.quality-btn.active')?.dataset.rating || 3;
+                    const wakeUps = parseInt(document.getElementById('tracking-wake-ups').value);
+
+                    const startTime = parseTime(startHour, startMinute);
+                    const endTime = parseTime(endHour, endMinute);
+                    let totalMinutes = endTime - startTime;
+                    if (totalMinutes < 0) totalMinutes += 1440;
+
+                    const sleepStages = calculateSleepStages(totalMinutes);
+                    const sleepScore = calculateSleepScore(totalMinutes, quality, wakeUps, sleepStages);
+
+                    const container = document.getElementById('sleep-analysis');
+                    container.innerHTML = `
+                        <div class="sleep-score">${sleepScore}</div>
+                        <div class="sleep-score-label">Sleep Score</div>
+                        <div class="sleep-stages">
+                            <div class="sleep-stage">
+                                <h4>Light Sleep</h4>
+                                <p>${sleepStages.light}%</p>
+                            </div>
+                            <div class="sleep-stage">
+                                <h4>Deep Sleep</h4>
+                                <p>${sleepStages.deep}%</p>
+                            </div>
+                            <div class="sleep-stage">
+                                <h4>REM Sleep</h4>
+                                <p>${sleepStages.rem}%</p>
+                            </div>
+                        </div>
+                        <div class="sleep-chart">
+                            <div class="sleep-bar" style="width: ${(totalMinutes / 480) * 100}%"></div>
+                        </div>
+                        <div class="sleep-details">
+                            <h4>Sleep Details</h4>
+                            <p>Total Sleep Time: ${Math.floor(totalMinutes / 60)}h ${totalMinutes % 60}m</p>
+                            <p>Sleep Quality: ${getQualityLabel(quality)}</p>
+                            <p>Wake-ups: ${wakeUps}</p>
+                        </div>
+                        <div class="sleep-recommendations">
+                            <h4>Recommendations</h4>
+                            <ul>
+                                ${generateSleepRecommendations(sleepScore, sleepStages, wakeUps)}
+                            </ul>
+                        </div>
+                    `;
+                    document.getElementById('sleep-tracking-results').classList.add('active');
+                });
+            }
+
+            function calculateSleepStages(totalMinutes) {
+                // Typical sleep stage distribution
+                const stages = {
+                    light: 45,  // 45% light sleep
+                    deep: 25,   // 25% deep sleep
+                    rem: 30     // 30% REM sleep
+                };
+
+                // Adjust based on total sleep time
+                if (totalMinutes < 360) { // Less than 6 hours
+                    stages.deep = Math.max(15, stages.deep - 5);
+                    stages.rem = Math.max(20, stages.rem - 5);
+                    stages.light = 100 - stages.deep - stages.rem;
+                } else if (totalMinutes > 540) { // More than 9 hours
+                    stages.deep = Math.min(30, stages.deep + 5);
+                    stages.rem = Math.min(35, stages.rem + 5);
+                    stages.light = 100 - stages.deep - stages.rem;
+                }
+
+                return stages;
+            }
+
+            function calculateSleepScore(totalMinutes, quality, wakeUps, stages) {
+                let score = 0;
+                
+                // Duration score (max 40 points)
+                if (totalMinutes >= 420 && totalMinutes <= 540) { // 7-9 hours
+                    score += 40;
+                } else if (totalMinutes >= 360 && totalMinutes <= 600) { // 6-10 hours
+                    score += 30;
+                } else if (totalMinutes >= 300 && totalMinutes <= 660) { // 5-11 hours
+                    score += 20;
+                } else {
+                    score += 10;
+                }
+
+                // Quality score (max 30 points)
+                score += (parseInt(quality) * 6);
+
+                // Wake-ups score (max 20 points)
+                score += (4 - wakeUps) * 5;
+
+                // Sleep stages score (max 10 points)
+                const stagesScore = (stages.deep >= 20 ? 5 : 3) + (stages.rem >= 20 ? 5 : 3);
+                score += stagesScore;
+
+                return Math.min(100, score);
+            }
+
+            function getQualityLabel(quality) {
+                const labels = {
+                    1: 'Poor',
+                    2: 'Fair',
+                    3: 'Good',
+                    4: 'Very Good',
+                    5: 'Excellent'
+                };
+                return labels[quality] || 'Good';
+            }
+
+            function generateSleepRecommendations(score, stages, wakeUps) {
+                const recommendations = [];
+                
+                if (score < 70) {
+                    recommendations.push("Try to maintain a consistent sleep schedule");
+                    recommendations.push("Create a relaxing bedtime routine");
+                }
+                
+                if (stages.deep < 20) {
+                    recommendations.push("Consider reducing screen time before bed");
+                    recommendations.push("Keep your bedroom cool and dark");
+                }
+                
+                if (stages.rem < 20) {
+                    recommendations.push("Avoid alcohol and caffeine before bed");
+                    recommendations.push("Try to reduce stress during the day");
+                }
+                
+                if (wakeUps > 1) {
+                    recommendations.push("Limit fluid intake before bedtime");
+                    recommendations.push("Create a more comfortable sleep environment");
+                }
+                
+                return recommendations.map(rec => `<li>${rec}</li>`).join('');
+            }
+
+            // Smart Alarm functionality
+            const alarmOptions = document.querySelectorAll('.alarm-option');
+            alarmOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    alarmOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            const setSmartAlarmBtn = document.getElementById('set-smart-alarm');
+            if (setSmartAlarmBtn) {
+                setSmartAlarmBtn.addEventListener('click', function() {
+                    const targetHour = document.getElementById('alarm-hour').value;
+                    const targetMinute = document.getElementById('alarm-minute').value;
+                    const windowSize = parseInt(document.getElementById('wakeup-window').value);
+                    const alarmType = document.querySelector('.alarm-option.active').dataset.type;
+                    const alarmSound = document.getElementById('alarm-sound').value;
+                    const gradualVolume = document.getElementById('gradual-volume').checked;
+
+                    const targetTime = parseTime(targetHour, targetMinute);
+                    const windowStart = targetTime - (windowSize / 2);
+                    const windowEnd = targetTime + (windowSize / 2);
+
+                    const container = document.getElementById('alarm-settings');
+                    container.innerHTML = `
+                        <div class="alarm-timeline">
+                            <div class="alarm-window" style="left: ${(windowStart / 1440) * 100}%; width: ${(windowSize / 1440) * 100}%"></div>
+                            <div class="alarm-marker" style="left: ${(targetTime / 1440) * 100}%"></div>
+                        </div>
+                        <div class="alarm-details">
+                            <h4>Smart Alarm Settings</h4>
+                            <p>Target Wake-up: ${formatTime(targetTime)}</p>
+                            <p>Wake-up Window: ${windowSize} minutes</p>
+                            <p>Alarm Type: ${alarmType.charAt(0).toUpperCase() + alarmType.slice(1)}</p>
+                            <p>Alarm Sound: ${alarmSound.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</p>
+                            <p>Gradual Volume: ${gradualVolume ? 'Enabled' : 'Disabled'}</p>
+                        </div>
+                        <div class="alarm-info">
+                            <h4>How it works:</h4>
+                            <ul>
+                                <li>The smart alarm will monitor your sleep cycles</li>
+                                <li>It will wake you up during light sleep within the ${windowSize}-minute window</li>
+                                <li>The alarm will start ${gradualVolume ? 'softly and gradually increase' : 'at full volume'}</li>
+                                <li>You'll be woken up at the optimal time for maximum energy</li>
+                            </ul>
+                        </div>
+                    `;
+                    document.getElementById('smart-alarm-results').classList.add('active');
+                });
+            }
+        });
+
+        // Nap Calculator
+        const napCalculator = {
+            init() {
+                this.bindEvents();
+            },
+
+            bindEvents() {
+                const calculateNapBtn = document.getElementById('calculate-nap');
+                if (calculateNapBtn) {
+                    calculateNapBtn.addEventListener('click', () => this.calculateNap());
+                }
+
+                // Initialize quality buttons
+                document.querySelectorAll('.quality-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const parent = e.target.closest('.quality-rating');
+                        if (parent) {
+                            parent.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('active'));
+                            e.target.closest('.quality-btn').classList.add('active');
+                        }
+                    });
+                });
+            },
+
+            calculateNap() {
+                const napHour = parseInt(document.getElementById('nap-hour').value);
+                const napMinute = parseInt(document.getElementById('nap-minute').value);
+                const lastNightSleep = parseInt(document.getElementById('last-night-sleep').value);
+                const currentEnergy = document.querySelector('.quality-btn.active')?.dataset.rating || 3;
+
+                const napTime = new Date();
+                napTime.setHours(napHour, napMinute, 0);
+
+                const recommendations = this.getNapRecommendations(napTime, lastNightSleep, currentEnergy);
+                this.displayResults(recommendations);
+            },
+
+            getNapRecommendations(napTime, lastNightSleep, currentEnergy) {
+                const hour = napTime.getHours();
+                const recommendations = {
+                    duration: this.calculateNapDuration(lastNightSleep, currentEnergy),
+                    timing: this.assessNapTiming(hour),
+                    tips: this.getNapTips(lastNightSleep, currentEnergy)
+                };
+
+                return recommendations;
+            },
+
+            calculateNapDuration(lastNightSleep, currentEnergy) {
+                if (lastNightSleep < 6) {
+                    return currentEnergy <= 2 ? '20-30 minutes' : '15-20 minutes';
+                } else if (lastNightSleep < 7) {
+                    return currentEnergy <= 2 ? '15-20 minutes' : '10-15 minutes';
+                } else {
+                    return currentEnergy <= 2 ? '10-15 minutes' : '5-10 minutes';
+                }
+            },
+
+            assessNapTiming(hour) {
+                if (hour >= 13 && hour <= 15) {
+                    return 'Perfect timing! This is the ideal window for a power nap.';
+                } else if (hour >= 10 && hour <= 12) {
+                    return 'Good timing, but try to nap between 1-3 PM for optimal results.';
+                } else if (hour >= 16 && hour <= 18) {
+                    return 'Late afternoon nap. Keep it short to avoid affecting nighttime sleep.';
+                } else {
+                    return 'Consider napping between 1-3 PM for best results.';
+                }
+            },
+
+            getNapTips(lastNightSleep, currentEnergy) {
+                const tips = [];
+                
+                if (lastNightSleep < 6) {
+                    tips.push('Focus on getting better nighttime sleep');
+                    tips.push('Consider a slightly longer nap (20-30 minutes)');
+                } else {
+                    tips.push('Keep your nap short and sweet');
+                }
+
+                if (currentEnergy <= 2) {
+                    tips.push('Find a quiet, dark place for your nap');
+                    tips.push('Set an alarm to avoid oversleeping');
+                }
+
+                tips.push('Avoid napping after 6 PM');
+                tips.push('Stay hydrated before and after your nap');
+
+                return tips;
+            },
+
+            displayResults(recommendations) {
+                const visualizationDiv = document.getElementById('nap-visualization');
+                if (!visualizationDiv) return;
+
+                const napHour = parseInt(document.getElementById('nap-hour').value);
+                const napMinute = parseInt(document.getElementById('nap-minute').value);
+                const lastNightSleep = parseInt(document.getElementById('last-night-sleep').value);
+                const currentEnergy = document.querySelector('.quality-btn.active')?.dataset.rating || 3;
+
+                // Calculate nap end time
+                const napDuration = recommendations.duration.split('-')[0].trim(); // Get first number from duration
+                const endTime = new Date();
+                endTime.setHours(napHour, napMinute + parseInt(napDuration), 0);
+                const endTimeStr = endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                visualizationDiv.innerHTML = `
+                    <div class="nap-recommendation">
+                        <h4><i class="fas fa-clock"></i> Nap Schedule</h4>
+                        <div class="nap-schedule">
+                            <div class="schedule-item">
+                                <span class="label">Start Time:</span>
+                                <span class="value">${napHour.toString().padStart(2, '0')}:${napMinute.toString().padStart(2, '0')}</span>
+                            </div>
+                            <div class="schedule-item">
+                                <span class="label">End Time:</span>
+                                <span class="value">${endTimeStr}</span>
+                            </div>
+                            <div class="schedule-item">
+                                <span class="label">Duration:</span>
+                                <span class="value">${recommendations.duration}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="nap-recommendation">
+                        <h4><i class="fas fa-chart-line"></i> Sleep Analysis</h4>
+                        <div class="sleep-analysis">
+                            <div class="analysis-item">
+                                <span class="label">Last Night's Sleep:</span>
+                                <span class="value">${lastNightSleep} hours</span>
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: ${(lastNightSleep/10) * 100}%"></div>
+                                </div>
+                            </div>
+                            <div class="analysis-item">
+                                <span class="label">Current Energy Level:</span>
+                                <span class="value">${currentEnergy}/5</span>
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: ${(currentEnergy/5) * 100}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="nap-recommendation">
+                        <h4><i class="fas fa-calendar-check"></i> Timing Assessment</h4>
+                        <p>${recommendations.timing}</p>
+                        <div class="timing-chart">
+                            <div class="timing-bar">
+                                <div class="optimal-zone" style="left: 54.16%; width: 8.33%;"></div>
+                                <div class="current-time" style="left: ${(napHour/24) * 100}%"></div>
+                            </div>
+                            <div class="timing-labels">
+                                <span>6 AM</span>
+                                <span>12 PM</span>
+                                <span>6 PM</span>
+                                <span>12 AM</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="nap-recommendation">
+                        <h4><i class="fas fa-list-check"></i> Nap Duration Guide</h4>
+                        <div class="nap-durations">
+                            <div class="duration-card ${parseInt(napDuration) <= 20 ? 'active' : ''}">
+                                <div class="duration-header">
+                                    <i class="fas fa-bolt"></i>
+                                    <h5>Power Nap (10-20 min)</h5>
+                                </div>
+                                <p>Quick energy boost, no grogginess</p>
+                                <ul>
+                                    <li>Light sleep stages (N1 & N2)</li>
+                                    <li>Best for alertness</li>
+                                    <li>Easy to wake from</li>
+                                </ul>
+                            </div>
+                            <div class="duration-card ${parseInt(napDuration) === 30 ? 'active' : ''}">
+                                <div class="duration-header">
+                                    <i class="fas fa-brain"></i>
+                                    <h5>Short Nap (30 min)</h5>
+                                </div>
+                                <p>May enter deep sleep</p>
+                                <ul>
+                                    <li>Can cause grogginess</li>
+                                    <li>Need time to wake up</li>
+                                    <li>Not ideal for quick boost</li>
+                                </ul>
+                            </div>
+                            <div class="duration-card ${parseInt(napDuration) === 60 ? 'active' : ''}">
+                                <div class="duration-header">
+                                    <i class="fas fa-memory"></i>
+                                    <h5>Memory Nap (60 min)</h5>
+                                </div>
+                                <p>Includes deep sleep</p>
+                                <ul>
+                                    <li>Improves memory</li>
+                                    <li>Better for learning</li>
+                                    <li>Harder to wake from</li>
+                                </ul>
+                            </div>
+                            <div class="duration-card ${parseInt(napDuration) === 90 ? 'active' : ''}">
+                                <div class="duration-header">
+                                    <i class="fas fa-star"></i>
+                                    <h5>Full Cycle (90 min)</h5>
+                                </div>
+                                <p>Complete sleep cycle</p>
+                                <ul>
+                                    <li>Best for creativity</li>
+                                    <li>Emotional processing</li>
+                                    <li>Full refreshment</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="nap-recommendation">
+                        <h4><i class="fas fa-lightbulb"></i> Personalized Tips</h4>
+                        <ul>
+                            ${recommendations.tips.map(tip => `<li>${tip}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+
+                // Add styles for the new elements
+                const style = document.createElement('style');
+                style.textContent = `
+                    .nap-schedule {
+                        background: rgba(255, 255, 255, 0.05);
+                        border-radius: 12px;
+                        padding: 15px;
+                        margin-top: 10px;
+                    }
+                    .schedule-item {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 10px;
+                    }
+                    .schedule-item:last-child {
+                        margin-bottom: 0;
+                    }
+                    .label {
+                        color: var(--text-light);
+                    }
+                    .value {
+                        font-weight: 600;
+                        color: var(--primary);
+                    }
+                    .sleep-analysis {
+                        margin-top: 10px;
+                    }
+                    .analysis-item {
+                        margin-bottom: 15px;
+                    }
+                    .progress-bar {
+                        height: 6px;
+                        background: rgba(255, 255, 255, 0.1);
+                        border-radius: 3px;
+                        margin-top: 5px;
+                        overflow: hidden;
+                    }
+                    .progress {
+                        height: 100%;
+                        background: linear-gradient(90deg, var(--primary), var(--accent));
+                        border-radius: 3px;
+                        transition: width 0.3s ease;
+                    }
+                    .timing-chart {
+                        margin-top: 15px;
+                        position: relative;
+                    }
+                    .timing-bar {
+                        height: 8px;
+                        background: rgba(255, 255, 255, 0.1);
+                        border-radius: 4px;
+                        position: relative;
+                        margin-bottom: 5px;
+                    }
+                    .optimal-zone {
+                        position: absolute;
+                        height: 100%;
+                        background: rgba(76, 201, 240, 0.3);
+                        border-radius: 4px;
+                    }
+                    .current-time {
+                        position: absolute;
+                        width: 2px;
+                        height: 16px;
+                        background: var(--accent);
+                        top: -4px;
+                    }
+                    .current-time::after {
+                        content: '';
+                        position: absolute;
+                        width: 8px;
+                        height: 8px;
+                        background: var(--accent);
+                        border-radius: 50%;
+                        top: -4px;
+                        left: -3px;
+                    }
+                    .timing-labels {
+                        display: flex;
+                        justify-content: space-between;
+                        color: var(--text-light);
+                        font-size: 0.8em;
+                    }
+                    .nap-durations {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                        gap: 15px;
+                        margin-top: 15px;
+                    }
+                    .duration-card {
+                        background: rgba(255, 255, 255, 0.05);
+                        border-radius: 12px;
+                        padding: 15px;
+                        transition: all 0.3s ease;
+                    }
+                    .duration-card.active {
+                        background: rgba(76, 201, 240, 0.1);
+                        border: 1px solid var(--primary);
+                    }
+                    .duration-header {
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        margin-bottom: 10px;
+                    }
+                    .duration-header i {
+                        color: var(--primary);
+                        font-size: 1.2em;
+                    }
+                    .duration-header h5 {
+                        margin: 0;
+                        color: var(--text);
+                    }
+                    .duration-card p {
+                        color: var(--text-light);
+                        margin: 0 0 10px 0;
+                        font-size: 0.9em;
+                    }
+                    .duration-card ul {
+                        list-style: none;
+                        padding: 0;
+                        margin: 0;
+                    }
+                    .duration-card li {
+                        color: var(--text-light);
+                        font-size: 0.9em;
+                        margin-bottom: 5px;
+                        padding-left: 20px;
+                        position: relative;
+                    }
+                    .duration-card li:before {
+                        content: "•";
+                        color: var(--primary);
+                        position: absolute;
+                        left: 0;
+                    }
+                    @media (max-width: 768px) {
+                        .nap-durations {
+                            grid-template-columns: 1fr;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        };
+
+        // Initialize nap calculator when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            napCalculator.init();
+        });
+    </script>
+</body>
+</html> 

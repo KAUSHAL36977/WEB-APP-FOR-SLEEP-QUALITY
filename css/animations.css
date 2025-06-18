@@ -1,0 +1,303 @@
+/* Fade Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+.fade-in {
+    animation: fadeIn var(--transition-normal) ease-in;
+}
+
+.fade-out {
+    animation: fadeOut var(--transition-normal) ease-out;
+}
+
+/* Slide Animations */
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.slide-in-right {
+    animation: slideInRight var(--transition-normal) ease-out;
+}
+
+.slide-in-left {
+    animation: slideInLeft var(--transition-normal) ease-out;
+}
+
+/* Scale Animations */
+@keyframes scaleIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes scaleOut {
+    from {
+        transform: scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+}
+
+.scale-in {
+    animation: scaleIn var(--transition-normal) ease-out;
+}
+
+.scale-out {
+    animation: scaleOut var(--transition-normal) ease-in;
+}
+
+/* Pulse Animation */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+/* Bounce Animation */
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-20px);
+    }
+    60% {
+        transform: translateY(-10px);
+    }
+}
+
+.bounce {
+    animation: bounce 1s ease infinite;
+}
+
+/* Shake Animation */
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-5px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(5px);
+    }
+}
+
+.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+/* Rotate Animation */
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.rotate {
+    animation: rotate 1s linear infinite;
+}
+
+/* Sleep Cycle Animations */
+@keyframes cyclePulse {
+    0% {
+        transform: scaleY(1);
+        opacity: 0.7;
+    }
+    50% {
+        transform: scaleY(1.1);
+        opacity: 1;
+    }
+    100% {
+        transform: scaleY(1);
+        opacity: 0.7;
+    }
+}
+
+.cycle-pulse {
+    animation: cyclePulse 2s ease-in-out infinite;
+}
+
+/* Chart Animations */
+@keyframes chartGrow {
+    from {
+        transform: scaleY(0);
+        transform-origin: bottom;
+    }
+    to {
+        transform: scaleY(1);
+        transform-origin: bottom;
+    }
+}
+
+.chart-grow {
+    animation: chartGrow 1s ease-out;
+}
+
+/* Loading Bar Animation */
+@keyframes loadingBar {
+    0% {
+        width: 0;
+    }
+    100% {
+        width: 100%;
+    }
+}
+
+.loading-bar {
+    height: 4px;
+    background-color: var(--primary-color);
+    animation: loadingBar 2s ease-in-out infinite;
+}
+
+/* Notification Animations */
+@keyframes slideInTop {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutTop {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+}
+
+.notification-slide-in {
+    animation: slideInTop 0.3s ease-out;
+}
+
+.notification-slide-out {
+    animation: slideOutTop 0.3s ease-in;
+}
+
+/* Theme Transition */
+.theme-transition {
+    transition: background-color var(--transition-normal),
+                color var(--transition-normal),
+                border-color var(--transition-normal),
+                box-shadow var(--transition-normal);
+}
+
+/* Hover Effects */
+.hover-lift {
+    transition: transform var(--transition-fast);
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+}
+
+.hover-scale {
+    transition: transform var(--transition-fast);
+}
+
+.hover-scale:hover {
+    transform: scale(1.05);
+}
+
+/* Focus Animations */
+@keyframes focusPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(74, 144, 226, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(74, 144, 226, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(74, 144, 226, 0);
+    }
+}
+
+.focus-pulse:focus {
+    animation: focusPulse 1.5s infinite;
+}
+
+/* Print Animations */
+@media print {
+    .fade-in,
+    .fade-out,
+    .slide-in-right,
+    .slide-in-left,
+    .scale-in,
+    .scale-out,
+    .pulse,
+    .bounce,
+    .shake,
+    .rotate,
+    .cycle-pulse,
+    .chart-grow,
+    .loading-bar,
+    .notification-slide-in,
+    .notification-slide-out,
+    .hover-lift:hover,
+    .hover-scale:hover,
+    .focus-pulse:focus {
+        animation: none !important;
+        transform: none !important;
+    }
+} 

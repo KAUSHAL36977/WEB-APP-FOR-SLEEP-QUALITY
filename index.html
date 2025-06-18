@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sleep Calculator - Optimize Your Sleep</title>
+    <meta name="description" content="Calculate optimal sleep times, track sleep patterns, and improve your sleep quality with our comprehensive sleep calculator.">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a1a">
+</head>
+<body>
+    <header class="main-header">
+        <nav class="nav-container">
+            <div class="logo">Sleep Calculator</div>
+            <div class="theme-toggle">
+                <button id="themeToggle" aria-label="Toggle dark/light theme">
+                    <span class="moon">🌙</span>
+                    <span class="sun">☀️</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <section class="calculator-section">
+            <div class="calculator-container">
+                <h1>Sleep Calculator</h1>
+                <div class="calculator-tabs">
+                    <button class="tab-btn active" data-tab="bedtime">Bedtime Calculator</button>
+                    <button class="tab-btn" data-tab="waketime">Wake Time Calculator</button>
+                </div>
+                
+                <div class="calculator-form">
+                    <div class="input-group">
+                        <label for="ageGroup">Age Group</label>
+                        <select id="ageGroup" required>
+                            <option value="newborn">Newborn (0-3 months)</option>
+                            <option value="infant">Infant (4-12 months)</option>
+                            <option value="toddler">Toddler (1-2 years)</option>
+                            <option value="preschool">Preschool (3-5 years)</option>
+                            <option value="school">School Age (6-12 years)</option>
+                            <option value="teen">Teen (13-18 years)</option>
+                            <option value="adult" selected>Adult (18-60 years)</option>
+                            <option value="older">Older Adult (61-64 years)</option>
+                            <option value="senior">Senior (65+ years)</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group time-input">
+                        <label for="timeInput">Time</label>
+                        <input type="time" id="timeInput" required>
+                    </div>
+
+                    <button id="calculateBtn" class="primary-btn">Calculate</button>
+                </div>
+
+                <div class="results-container">
+                    <div class="sleep-cycles">
+                        <h2>Sleep Cycles</h2>
+                        <div id="sleepCyclesChart" class="chart-container"></div>
+                    </div>
+                    
+                    <div class="recommendations">
+                        <h2>Recommendations</h2>
+                        <div id="recommendationsList"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="analytics-section">
+            <h2>Sleep Analytics</h2>
+            <div class="analytics-container">
+                <div class="sleep-tracking">
+                    <h3>Sleep Tracking</h3>
+                    <div id="sleepTrackingChart" class="chart-container"></div>
+                </div>
+                <div class="sleep-quality">
+                    <h3>Sleep Quality</h3>
+                    <div id="sleepQualityChart" class="chart-container"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="tips-section">
+            <h2>Sleep Tips</h2>
+            <div class="tips-container" id="sleepTips">
+                <!-- Tips will be dynamically loaded -->
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <p>&copy; 2024 Sleep Calculator. All rights reserved.</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/main.js" type="module"></script>
+    <script src="js/sleep-calculator.js" type="module"></script>
+    <script src="js/sleep-analytics.js" type="module"></script>
+    <script src="js/chart-visualization.js" type="module"></script>
+    <script src="js/notifications.js" type="module"></script>
+    <script src="js/storage-manager.js" type="module"></script>
+</body>
+</html> 
