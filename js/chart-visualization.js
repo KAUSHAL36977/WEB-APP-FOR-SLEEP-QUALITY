@@ -17,23 +17,23 @@ export class ChartVisualizer {
     }
 
     initializeSleepCyclesChart() {
-        const ctx = document.getElementById('sleepCyclesChart').getContext('2d');
-        
+        const ctx = document.getElementById('cyclesChart');
+        if (!ctx) return;
+
         this.charts.sleepCycles = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: [],
+                labels: ['Cycle 1', 'Cycle 2', 'Cycle 3', 'Cycle 4', 'Cycle 5', 'Cycle 6'],
                 datasets: [{
                     label: 'Sleep Cycles',
-                    data: [],
-                    backgroundColor: 'rgba(74, 144, 226, 0.5)',
-                    borderColor: 'rgba(74, 144, 226, 1)',
+                    data: [0, 0, 0, 0, 0, 0],
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
                     borderWidth: 1
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
                 scales: {
                     y: {
                         beginAtZero: true,
@@ -41,25 +41,12 @@ export class ChartVisualizer {
                             display: true,
                             text: 'Duration (minutes)'
                         }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Cycle Number'
-                        }
                     }
                 },
                 plugins: {
                     title: {
                         display: true,
-                        text: 'Sleep Cycle Distribution'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return `Cycle ${context.label}: ${context.raw} minutes`;
-                            }
-                        }
+                        text: 'Sleep Cycles Distribution'
                     }
                 }
             }
@@ -67,8 +54,9 @@ export class ChartVisualizer {
     }
 
     initializeSleepTrackingChart() {
-        const ctx = document.getElementById('sleepTrackingChart').getContext('2d');
-        
+        const ctx = document.getElementById('trackingChart');
+        if (!ctx) return;
+
         this.charts.sleepTracking = new Chart(ctx, {
             type: 'line',
             data: {
@@ -76,14 +64,13 @@ export class ChartVisualizer {
                 datasets: [{
                     label: 'Sleep Duration',
                     data: [],
-                    borderColor: 'rgba(74, 144, 226, 1)',
-                    tension: 0.4,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    tension: 0.1,
                     fill: false
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
                 scales: {
                     y: {
                         beginAtZero: true,
@@ -91,18 +78,12 @@ export class ChartVisualizer {
                             display: true,
                             text: 'Hours'
                         }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Date'
-                        }
                     }
                 },
                 plugins: {
                     title: {
                         display: true,
-                        text: 'Sleep Duration Over Time'
+                        text: 'Sleep Duration Trend'
                     }
                 }
             }
@@ -110,33 +91,30 @@ export class ChartVisualizer {
     }
 
     initializeSleepQualityChart() {
-        const ctx = document.getElementById('sleepQualityChart').getContext('2d');
-        
+        const ctx = document.getElementById('qualityChart');
+        if (!ctx) return;
+
         this.charts.sleepQuality = new Chart(ctx, {
             type: 'radar',
             data: {
                 labels: ['Duration', 'Cycles', 'Consistency', 'Quality'],
                 datasets: [{
-                    label: 'Sleep Quality Metrics',
+                    label: 'Sleep Quality',
                     data: [0, 0, 0, 0],
-                    backgroundColor: 'rgba(74, 144, 226, 0.2)',
-                    borderColor: 'rgba(74, 144, 226, 1)',
-                    pointBackgroundColor: 'rgba(74, 144, 226, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    pointBackgroundColor: 'rgba(255, 99, 132, 1)',
                     pointBorderColor: '#fff',
                     pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgba(74, 144, 226, 1)'
+                    pointHoverBorderColor: 'rgba(255, 99, 132, 1)'
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
                 scales: {
                     r: {
                         beginAtZero: true,
-                        max: 100,
-                        ticks: {
-                            stepSize: 20
-                        }
+                        max: 100
                     }
                 },
                 plugins: {
@@ -149,62 +127,79 @@ export class ChartVisualizer {
         });
     }
 
-    updateSleepCycles(cycles) {
+    updateCharts(data) {
+        this.updateSleepCyclesChart(data.cycles);
+        this.updateSleepTrackingChart(data);
+        this.updateSleepQualityChart(data);
+    }
+
+    updateSleepCyclesChart(cycles) {
         if (!this.charts.sleepCycles) return;
 
-        const labels = cycles.map(cycle => cycle.number);
-        const data = cycles.map(cycle => cycle.duration);
-
-        this.charts.sleepCycles.data.labels = labels;
-        this.charts.sleepCycles.data.datasets[0].data = data;
+        const cycleData = cycles.map(cycle => cycle.duration);
+        this.charts.sleepCycles.data.datasets[0].data = cycleData;
         this.charts.sleepCycles.update();
     }
 
-    updateAnalyticsCharts(analytics) {
-        this.updateSleepTrackingChart(analytics.weekly);
-        this.updateSleepQualityChart(analytics.trends);
-    }
-
-    updateSleepTrackingChart(weeklyData) {
+    updateSleepTrackingChart(data) {
         if (!this.charts.sleepTracking) return;
 
-        const labels = weeklyData.map(entry => {
-            const date = new Date(entry.date);
-            return date.toLocaleDateString('en-US', { weekday: 'short' });
-        });
-
-        const data = weeklyData.map(entry => entry.averageDuration);
-
-        this.charts.sleepTracking.data.labels = labels;
-        this.charts.sleepTracking.data.datasets[0].data = data;
+        const history = this.getSleepHistory();
+        this.charts.sleepTracking.data.labels = history.map(record => record.date);
+        this.charts.sleepTracking.data.datasets[0].data = history.map(record => record.duration);
         this.charts.sleepTracking.update();
     }
 
-    updateSleepQualityChart(trends) {
+    updateSleepQualityChart(data) {
         if (!this.charts.sleepQuality) return;
 
-        // Normalize values to 0-100 scale
-        const durationScore = Math.min(100, (trends.averageSleepDuration / 9) * 100);
-        const cyclesScore = Math.min(100, (trends.averageCycles / 6) * 100);
-        const consistencyScore = trends.consistencyScore;
-        const qualityScore = (durationScore + cyclesScore + consistencyScore) / 3;
-
-        this.charts.sleepQuality.data.datasets[0].data = [
-            durationScore,
-            cyclesScore,
-            consistencyScore,
-            qualityScore
+        const qualityData = [
+            this.calculateDurationScore(data.totalSleep),
+            this.calculateCyclesScore(data.cycles.length),
+            this.calculateConsistencyScore(data),
+            data.quality || 0
         ];
 
+        this.charts.sleepQuality.data.datasets[0].data = qualityData;
         this.charts.sleepQuality.update();
     }
 
-    // Helper method to format time for display
-    formatTime(time) {
-        return `${time.hours.toString().padStart(2, '0')}:${time.minutes.toString().padStart(2, '0')}`;
+    calculateDurationScore(duration) {
+        // Score based on recommended 7-9 hours for adults
+        if (duration >= 7 && duration <= 9) return 100;
+        if (duration >= 6 && duration <= 10) return 75;
+        if (duration >= 5 && duration <= 11) return 50;
+        return 25;
     }
 
-    // Method to destroy charts when needed
+    calculateCyclesScore(cycleCount) {
+        // Score based on optimal 5-7 cycles
+        if (cycleCount >= 5 && cycleCount <= 7) return 100;
+        if (cycleCount >= 4 && cycleCount <= 8) return 75;
+        if (cycleCount >= 3 && cycleCount <= 9) return 50;
+        return 25;
+    }
+
+    calculateConsistencyScore(data) {
+        // This would ideally use historical data
+        // For now, return a default score
+        return 75;
+    }
+
+    getSleepHistory() {
+        // This would ideally get data from the analytics module
+        // For now, return dummy data
+        return [
+            { date: '2024-03-01', duration: 7.5 },
+            { date: '2024-03-02', duration: 8.0 },
+            { date: '2024-03-03', duration: 7.0 },
+            { date: '2024-03-04', duration: 8.5 },
+            { date: '2024-03-05', duration: 7.5 },
+            { date: '2024-03-06', duration: 8.0 },
+            { date: '2024-03-07', duration: 7.5 }
+        ];
+    }
+
     destroyCharts() {
         Object.values(this.charts).forEach(chart => {
             if (chart) {

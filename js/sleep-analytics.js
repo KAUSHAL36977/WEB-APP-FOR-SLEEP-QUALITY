@@ -1,244 +1,195 @@
 export class SleepAnalytics {
     constructor() {
-        this.calculations = [];
-        this.analytics = {
-            weekly: [],
-            monthly: [],
+        this.data = {
+            sleepRecords: [],
             trends: {
                 averageSleepDuration: 0,
-                averageCycles: 0,
+                averageSleepQuality: 0,
                 consistencyScore: 0
             }
         };
     }
 
-    loadData(data) {
-        this.calculations = data.calculations || [];
-        this.updateAnalytics();
+    async loadData() {
+        try {
+            const savedData = localStorage.getItem('sleepAnalytics');
+            if (savedData) {
+                this.data = JSON.parse(savedData);
+            }
+        } catch (error) {
+            console.error('Error loading sleep analytics data:', error);
+        }
     }
 
-    addCalculation(calculation) {
-        this.calculations.push(calculation);
-        this.updateAnalytics();
+    async saveData() {
+        try {
+            localStorage.setItem('sleepAnalytics', JSON.stringify(this.data));
+        } catch (error) {
+            console.error('Error saving sleep analytics data:', error);
+        }
     }
 
-    updateAnalytics() {
-        this.calculateWeeklyAnalytics();
-        this.calculateMonthlyAnalytics();
-        this.calculateTrends();
+    addSleepRecord(record) {
+        this.data.sleepRecords.push({
+            ...record,
+            date: new Date().toISOString(),
+            quality: this.calculateSleepQuality(record)
+        });
+        
+        this.updateTrends();
+        this.saveData();
     }
 
-    calculateWeeklyAnalytics() {
-        const now = new Date();
-        const weekStart = new Date(now);
-        weekStart.setDate(now.getDate() - 7);
-
-        const weeklyData = this.calculations
-            .filter(calc => new Date(calc.timestamp) >= weekStart)
-            .map(calc => ({
-                date: new Date(calc.timestamp),
-                duration: this.calculateSleepDuration(calc),
-                cycles: calc.cycles.length,
-                quality: this.calculateSleepQuality(calc)
-            }));
-
-        this.analytics.weekly = this.groupByDay(weeklyData);
+    calculateSleepQuality(record) {
+        let quality = 0;
+        
+        // Check sleep duration
+        const recommendedHours = this.getRecommendedSleepHours(record.ageGroup);
+        const sleepHours = record.totalSleep;
+        
+        if (sleepHours >= recommendedHours.min && sleepHours <= recommendedHours.max) {
+            quality += 40; // 40% weight for duration
+        } else if (sleepHours >= recommendedHours.min - 1 && sleepHours <= recommendedHours.max + 1) {
+            quality += 20;
+        }
+        
+        // Check sleep cycles
+        const cycleCount = record.cycles.length;
+        if (cycleCount >= 5 && cycleCount <= 7) {
+            quality += 40; // 40% weight for cycles
+        } else if (cycleCount >= 4 && cycleCount <= 8) {
+            quality += 20;
+        }
+        
+        // Check bedtime consistency
+        if (this.isConsistentBedtime(record)) {
+            quality += 20; // 20% weight for consistency
+        }
+        
+        return quality;
     }
 
-    calculateMonthlyAnalytics() {
-        const now = new Date();
-        const monthStart = new Date(now);
-        monthStart.setDate(now.getDate() - 30);
-
-        const monthlyData = this.calculations
-            .filter(calc => new Date(calc.timestamp) >= monthStart)
-            .map(calc => ({
-                date: new Date(calc.timestamp),
-                duration: this.calculateSleepDuration(calc),
-                cycles: calc.cycles.length,
-                quality: this.calculateSleepQuality(calc)
-            }));
-
-        this.analytics.monthly = this.groupByWeek(monthlyData);
-    }
-
-    calculateTrends() {
-        if (this.calculations.length === 0) return;
-
-        const durations = this.calculations.map(calc => this.calculateSleepDuration(calc));
-        const cycles = this.calculations.map(calc => calc.cycles.length);
-
-        this.analytics.trends = {
-            averageSleepDuration: this.calculateAverage(durations),
-            averageCycles: this.calculateAverage(cycles),
-            consistencyScore: this.calculateConsistencyScore()
+    getRecommendedSleepHours(ageGroup) {
+        const recommendations = {
+            'child': { min: 9, max: 11 },
+            'teen': { min: 8, max: 10 },
+            'adult': { min: 7, max: 9 },
+            'senior': { min: 7, max: 8 }
         };
+        
+        return recommendations[ageGroup] || recommendations.adult;
     }
 
-    calculateSleepDuration(calculation) {
-        const bedtime = this.timeToMinutes(calculation.bedtime);
-        const wakeTime = this.timeToMinutes(calculation.wakeTime);
-        let duration = wakeTime - bedtime;
-
-        // Handle overnight sleep
-        if (duration < 0) {
-            duration += 24 * 60;
-        }
-
-        return duration / 60; // Convert to hours
+    isConsistentBedtime(record) {
+        if (this.data.sleepRecords.length < 2) return true;
+        
+        const lastRecord = this.data.sleepRecords[this.data.sleepRecords.length - 1];
+        const lastBedtime = new Date(`2000-01-01T${lastRecord.bedtime}`);
+        const currentBedtime = new Date(`2000-01-01T${record.bedtime}`);
+        
+        const diffHours = Math.abs(lastBedtime - currentBedtime) / (1000 * 60 * 60);
+        return diffHours <= 1; // Consider consistent if within 1 hour
     }
 
-    calculateSleepQuality(calculation) {
-        const cycles = calculation.cycles.length;
-        const duration = this.calculateSleepDuration(calculation);
+    updateTrends() {
+        if (this.data.sleepRecords.length === 0) return;
         
-        // Simple quality score based on cycle count and duration
-        let qualityScore = 0;
+        // Calculate average sleep duration
+        const totalDuration = this.data.sleepRecords.reduce((sum, record) => sum + record.totalSleep, 0);
+        this.data.trends.averageSleepDuration = totalDuration / this.data.sleepRecords.length;
         
-        // Cycle count quality (optimal: 4-6 cycles)
-        if (cycles >= 4 && cycles <= 6) {
-            qualityScore += 50;
-        } else if (cycles >= 3 && cycles <= 7) {
-            qualityScore += 30;
-        } else {
-            qualityScore += 10;
-        }
+        // Calculate average sleep quality
+        const totalQuality = this.data.sleepRecords.reduce((sum, record) => sum + record.quality, 0);
+        this.data.trends.averageSleepQuality = totalQuality / this.data.sleepRecords.length;
         
-        // Duration quality (optimal: 7-9 hours)
-        if (duration >= 7 && duration <= 9) {
-            qualityScore += 50;
-        } else if (duration >= 6 && duration <= 10) {
-            qualityScore += 30;
-        } else {
-            qualityScore += 10;
-        }
-        
-        return qualityScore;
+        // Calculate consistency score
+        this.data.trends.consistencyScore = this.calculateConsistencyScore();
     }
 
     calculateConsistencyScore() {
-        if (this.calculations.length < 2) return 0;
-
-        const bedtimes = this.calculations.map(calc => 
-            this.timeToMinutes(calc.bedtime)
-        );
-
-        const wakeTimes = this.calculations.map(calc => 
-            this.timeToMinutes(calc.wakeTime)
-        );
-
-        const bedtimeVariance = this.calculateVariance(bedtimes);
-        const wakeTimeVariance = this.calculateVariance(wakeTimes);
-
-        // Convert variance to a 0-100 score (lower variance = higher score)
-        const maxVariance = 720; // 12 hours in minutes
-        const bedtimeScore = Math.max(0, 100 - (bedtimeVariance / maxVariance) * 100);
-        const wakeTimeScore = Math.max(0, 100 - (wakeTimeVariance / maxVariance) * 100);
-
-        return (bedtimeScore + wakeTimeScore) / 2;
-    }
-
-    calculateVariance(values) {
-        const mean = this.calculateAverage(values);
-        const squaredDiffs = values.map(value => Math.pow(value - mean, 2));
-        return this.calculateAverage(squaredDiffs);
-    }
-
-    calculateAverage(values) {
-        return values.reduce((sum, value) => sum + value, 0) / values.length;
-    }
-
-    timeToMinutes(time) {
-        return time.hours * 60 + time.minutes;
-    }
-
-    groupByDay(data) {
-        const grouped = {};
+        if (this.data.sleepRecords.length < 2) return 100;
         
-        data.forEach(entry => {
-            const date = entry.date.toISOString().split('T')[0];
-            if (!grouped[date]) {
-                grouped[date] = [];
-            }
-            grouped[date].push(entry);
-        });
-
-        return Object.entries(grouped).map(([date, entries]) => ({
-            date,
-            averageDuration: this.calculateAverage(entries.map(e => e.duration)),
-            averageCycles: this.calculateAverage(entries.map(e => e.cycles)),
-            averageQuality: this.calculateAverage(entries.map(e => e.quality))
-        }));
-    }
-
-    groupByWeek(data) {
-        const grouped = {};
-        
-        data.forEach(entry => {
-            const weekStart = this.getWeekStart(entry.date);
-            const weekKey = weekStart.toISOString().split('T')[0];
+        let consistentDays = 0;
+        for (let i = 1; i < this.data.sleepRecords.length; i++) {
+            const prev = this.data.sleepRecords[i - 1];
+            const curr = this.data.sleepRecords[i];
             
-            if (!grouped[weekKey]) {
-                grouped[weekKey] = [];
+            if (this.isConsistentBedtime(curr)) {
+                consistentDays++;
             }
-            grouped[weekKey].push(entry);
+        }
+        
+        return (consistentDays / (this.data.sleepRecords.length - 1)) * 100;
+    }
+
+    getSleepTrends() {
+        return {
+            averageSleepDuration: this.data.trends.averageSleepDuration.toFixed(1),
+            averageSleepQuality: Math.round(this.data.trends.averageSleepQuality),
+            consistencyScore: Math.round(this.data.trends.consistencyScore)
+        };
+    }
+
+    getSleepHistory(days = 7) {
+        const now = new Date();
+        const cutoff = new Date(now.getTime() - (days * 24 * 60 * 60 * 1000));
+        
+        return this.data.sleepRecords
+            .filter(record => new Date(record.date) >= cutoff)
+            .map(record => ({
+                date: new Date(record.date).toLocaleDateString(),
+                duration: record.totalSleep,
+                quality: record.quality,
+                bedtime: record.bedtime,
+                wakeup: record.wakeup
+            }));
+    }
+
+    getSleepQualityDistribution() {
+        const distribution = {
+            excellent: 0, // 80-100
+            good: 0,     // 60-79
+            fair: 0,     // 40-59
+            poor: 0      // 0-39
+        };
+        
+        this.data.sleepRecords.forEach(record => {
+            if (record.quality >= 80) distribution.excellent++;
+            else if (record.quality >= 60) distribution.good++;
+            else if (record.quality >= 40) distribution.fair++;
+            else distribution.poor++;
         });
-
-        return Object.entries(grouped).map(([week, entries]) => ({
-            week,
-            averageDuration: this.calculateAverage(entries.map(e => e.duration)),
-            averageCycles: this.calculateAverage(entries.map(e => e.cycles)),
-            averageQuality: this.calculateAverage(entries.map(e => e.quality))
-        }));
+        
+        return distribution;
     }
 
-    getWeekStart(date) {
-        const result = new Date(date);
-        result.setDate(date.getDate() - date.getDay());
-        return result;
+    getSleepDurationTrend() {
+        return this.data.sleepRecords
+            .slice(-7) // Last 7 records
+            .map(record => ({
+                date: new Date(record.date).toLocaleDateString(),
+                duration: record.totalSleep
+            }));
     }
 
-    getAnalytics() {
-        return this.analytics;
+    getSleepQualityTrend() {
+        return this.data.sleepRecords
+            .slice(-7) // Last 7 records
+            .map(record => ({
+                date: new Date(record.date).toLocaleDateString(),
+                quality: record.quality
+            }));
     }
 
-    getSleepTips() {
-        const tips = [];
-        const trends = this.analytics.trends;
-
-        // Duration-based tips
-        if (trends.averageSleepDuration < 7) {
-            tips.push({
-                icon: '⏰',
-                title: 'Increase Sleep Duration',
-                description: 'Your average sleep duration is below recommended levels. Try going to bed 30 minutes earlier.'
-            });
-        } else if (trends.averageSleepDuration > 9) {
-            tips.push({
-                icon: '💤',
-                title: 'Optimize Sleep Duration',
-                description: 'You might be sleeping too much. Try reducing your sleep time by 30 minutes.'
-            });
-        }
-
-        // Consistency-based tips
-        if (trends.consistencyScore < 70) {
-            tips.push({
-                icon: '🔄',
-                title: 'Improve Sleep Consistency',
-                description: 'Try to maintain a more consistent sleep schedule by going to bed and waking up at the same time.'
-            });
-        }
-
-        // Cycle-based tips
-        if (trends.averageCycles < 4) {
-            tips.push({
-                icon: '⚠️',
-                title: 'Increase Sleep Cycles',
-                description: 'You\'re getting fewer than optimal sleep cycles. Consider adjusting your sleep schedule.'
-            });
-        }
-
-        return tips;
+    clearData() {
+        this.data = {
+            sleepRecords: [],
+            trends: {
+                averageSleepDuration: 0,
+                averageSleepQuality: 0,
+                consistencyScore: 0
+            }
+        };
+        this.saveData();
     }
 } 
